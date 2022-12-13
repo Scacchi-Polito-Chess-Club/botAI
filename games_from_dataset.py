@@ -23,12 +23,12 @@ def file_parser(fname: str = FILENAME) -> chess.pgn.Game:
                 print(e)
 
 
-def game_states(game: chess.pgn.Game) -> tuple[str, str]:
+def game_states(game: chess.pgn.Game) -> tuple[tuple[str, str], str]:
     """
     This function yields one tuple at a time in the form (s_t, s_t+1)
 
     :param game: the game taken from the database (class chess.pgn.Game)
-    :return: the tuple (s_t, s_t+1)
+    :return: the tuple (s_t, s_t+1) and the ground truth (the move that led from s_t to s_t+1)
     """
     # create a new board
     board = chess.Board()
@@ -37,9 +37,9 @@ def game_states(game: chess.pgn.Game) -> tuple[str, str]:
         # save copy before executing move
         old_board = board.copy(stack=False)
         board.push(move)
-        # yield (s_t, s_t+1)
+        # yield the result one at a time
         # yield str(old_board), str(board)
-        yield old_board.fen(), board.fen()
+        yield (old_board.fen(), board.fen()), move.uci()
 
 
 def main():

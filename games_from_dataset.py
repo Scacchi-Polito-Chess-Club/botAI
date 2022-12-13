@@ -1,7 +1,25 @@
 import chess
 import chess.pgn
+import numpy as np
+# np.set_printoptions(formatter={'int': hex})
 
 FILENAME = "dataset.pgn"
+
+DICTIONARY = {
+    '.': 0x0,
+    'p': 0x1,
+    'r': 0x2,
+    'b': 0x3,
+    'n': 0x4,
+    'q': 0x5,
+    'k': 0x6,
+    'P': 0x7,
+    'R': 0x8,
+    'B': 0x9,
+    'N': 0xa,
+    'Q': 0xb,
+    'K': 0xc,
+}
 
 
 def file_parser(fname: str = FILENAME) -> chess.pgn.Game:
@@ -42,8 +60,15 @@ def game_states(game: chess.pgn.Game) -> tuple[tuple[str, str], str]:
         old_board = board.copy(stack=False)
         board.push(move)
         # yield the result one at a time
-        # yield str(old_board), str(board)
-        yield (old_board.fen(), board.fen()), move.uci()
+        # yield (str(old_board), str(board)), move.uci()
+        # yield (old_board.fen(), board.fen()), move.uci()
+        yield (old_board, board), move.uci()
+
+
+def board_to_array(board: chess.Board):
+    cells = str(board).split()
+    cells_encoding = np.array(list(map(lambda x: DICTIONARY[x], cells)))
+    print(cells_encoding)
 
 
 def main():
@@ -54,12 +79,19 @@ def main():
         print(f"******************GAME {i+1}******************")
 
         # iterate through states tuples
-        for s in game_states(game):
-            print(s)
+        for (s1, s2), l in game_states(game):
+            # print(l)
+            # print()
+            # print(s1)
+            # print()
+            # print(s2)
+            # print()
+            board_to_array(s1)
+            break
 
         # for debug purpose, stop at first iteration
-        # if i == 0:
-        #     break
+        if i == 0:
+            break
 
 
 if __name__ == '__main__':

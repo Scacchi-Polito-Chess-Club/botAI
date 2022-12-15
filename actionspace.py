@@ -3,6 +3,7 @@ from utils import *
 from itertools import chain
 import json
 
+
 def main(): 
     # creating the grid
     letters = list("abcdefgh")
@@ -36,7 +37,7 @@ def main():
     )
     # mapping all possible pieces in all possible positions (64 cells * 16 pieces = 1024 configs)
     piece_cell = map(
-        lambda tup: (tup[0].name, tup[1]) , product(pieces16, cells)
+        lambda tup: (tup[0].name, tup[1]), product(pieces16, cells)
         )
     # mapping each combination (piece/cell) to an integer from 0 to 1023
     actionspace = map(lambda tup: tup[0]+"/"+tup[1], piece_cell)
@@ -46,6 +47,7 @@ def main():
     # saving action space to a json file
     with open("actionspace.txt", "w") as output_file: 
         output_file.write(json.dumps(actionspace))
+
 
 if __name__ == "__main__":
     main()

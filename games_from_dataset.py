@@ -68,7 +68,25 @@ def game_states(game: chess.pgn.Game) -> tuple[tuple[str, str], str]:
 def board_to_array(board: chess.Board):
     cells = str(board).split()
     cells_encoding = np.array(list(map(lambda x: DICTIONARY[x], cells)))
-    print(cells_encoding)
+    castling = str(board.fen).split()[6]
+    castling_encoding = np.array(list(map(lambda x: CASTLING[x], castling)))
+    if board.ep_square is not None:
+        enpassant = (board.ep_square + 1) % 8
+        if enpassant == 0:
+            enpassant = 8
+    else:
+        enpassant = 0
+    board_encoding = np.hstack((cells_encoding, castling_encoding, enpassant))
+    print(board_encoding)
+
+
+CASTLING = {
+    'K': 1,
+    'Q': 1,
+    'k': 1,
+    'q': 1,
+    '-': 0,
+}
 
 
 def main():

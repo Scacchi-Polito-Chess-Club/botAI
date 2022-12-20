@@ -5,27 +5,41 @@ import numpy as np
 
 FILENAME = "dataset.pgn"
 
+
+# uppercase white, lowercase black
 DICTIONARY = {
-    '.': 0x0,
-    'p': 0x1,
-    'r': 0x2,
-    'b': 0x3,
-    'n': 0x4,
-    'q': 0x5,
-    'k': 0x6,
-    'P': 0x7,
-    'R': 0x8,
-    'B': 0x9,
-    'N': 0xa,
-    'Q': 0xb,
-    'K': 0xc,
+    '.': 0,
+    'p': 1,
+    'r': 2,
+    'b': 3,
+    'n': 4,
+    'q': 5,
+    'k': 6,
+    'P': 7,
+    'R': 8,
+    'B': 9,
+    'N': 10,
+    'Q': 11,
+    'K': 12,
 }
+
+CASTLING = {
+    'K': 13,
+    'Q': 14,
+    'k': 15,
+    'q': 16,
+    '-': 0,
+}
+
+OFFSET_CASTLING = 20
+OFFSET_ENPASSANT = 100
 
 
 def file_parser(fname: str = FILENAME) -> chess.pgn.Game:
     """
     This function yields one game at a time, taken from the file @fname.
 
+    Args:
     :param fname: the name of the pgn dataset file
     :type fname: str
     :return: one game at a time
@@ -68,25 +82,42 @@ def game_states(game: chess.pgn.Game) -> tuple[tuple[str, str], str]:
 def board_to_array(board: chess.Board):
     cells = str(board).split()
     cells_encoding = np.array(list(map(lambda x: DICTIONARY[x], cells)))
-    castling = str(board.fen).split()[6]
+    castling = str(board.fen()).split()[2]
     castling_encoding = np.array(list(map(lambda x: CASTLING[x], castling)))
-    if board.ep_square is not None:
-        enpassant = (board.ep_square + 1) % 8
-        if enpassant == 0:
-            enpassant = 8
-    else:
-        enpassant = 0
+    enpassant = 0 if board.ep_square is None else (board.ep_square % 8) + 1
+
     board_encoding = np.hstack((cells_encoding, castling_encoding, enpassant))
     print(board_encoding)
 
 
-CASTLING = {
-    'K': 1,
-    'Q': 1,
-    'k': 1,
-    'q': 1,
-    '-': 0,
-}
+def board_to_array2(board: chess.Board):
+    cells = str(board).split()
+    cells_encoding = np.array(list(map(lambda x: DICTIONARY[x], cells)))
+    castling = str(board.fen()).split()[2]
+
+    if 'K' in castling:
+        # cells_encoding[60] += OFFSET_CASTLING
+        cells_encoding[63] += OFFSET_CASTLING
+    if 'Q' in castling:
+        cells_encoding[56] += OFFSET_CASTLING
+        # cells_encoding[60] += OFFSET_CASTLING
+    if 'k' in castling:
+        # cells_encoding[4] += OFFSET_CASTLING
+        cells_encoding[7] += OFFSET_CASTLING
+    if 'q' in castling:
+        cells_encoding[0] += OFFSET_CASTLING
+        # cells_encoding[4] += OFFSET_CASTLING
+
+    if board.ep_square is not None:
+        print(board.ep_square)
+        ts = 64 - board.ep_square
+
+        s = 1 if ts < 32 else -1
+
+        cells_encoding[ts + s*8] += OFFSET_ENPASSANT
+
+    print(cells_encoding)
+    print(len(cells_encoding))
 
 
 def main():
@@ -104,7 +135,7 @@ def main():
             # print()
             # print(s2)
             # print()
-            board_to_array(s1)
+            board_to_array2(s1)
             break
 
         # for debug purpose, stop at first iteration
@@ -113,4 +144,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    board1 = chess.Board(fen="rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2")
+    print(board1)
+    board_to_array2(board1)

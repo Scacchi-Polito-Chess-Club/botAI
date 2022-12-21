@@ -92,7 +92,7 @@ def board_to_array(board: chess.Board):
 
 def board_to_array2(board: chess.Board):
     cells = str(board).split()
-    cells_encoding = np.array(list(map(lambda x: DICTIONARY[x], cells)))
+    cells_encoding = np.array(list(map(lambda x: DICTIONARY[x], reversed(cells))))
     castling = str(board.fen()).split()[2]
 
     if 'K' in castling:
@@ -110,11 +110,10 @@ def board_to_array2(board: chess.Board):
 
     if board.ep_square is not None:
         print(board.ep_square)
-        ts = 64 - board.ep_square
 
-        s = 1 if ts < 32 else -1
+        s = 1 if board.ep_square < 32 else -1
 
-        cells_encoding[ts + s*8] += OFFSET_ENPASSANT
+        cells_encoding[board.ep_square + s*8] += OFFSET_ENPASSANT
 
     print(cells_encoding)
     print(len(cells_encoding))
@@ -145,6 +144,10 @@ def main():
 
 if __name__ == '__main__':
     # main()
-    board1 = chess.Board(fen="rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2")
+
+    fen_white = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
+    fen_black = "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"
+
+    board1 = chess.Board(fen=fen_black)
     print(board1)
     board_to_array2(board1)

@@ -150,6 +150,6 @@ if __name__ == '__main__':
     fen_white = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
     fen_black = "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"
 
-    board1 = chess.Board(fen=fen_black)
+    board1 = chess.Board(fen=fen_white)
     print(board1)
     board_to_array2(board1)

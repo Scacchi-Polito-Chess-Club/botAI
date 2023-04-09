@@ -1,10 +1,14 @@
+import itertools
+import math
+
 import chess
 import chess.pgn
 import numpy as np
 # np.set_printoptions(formatter={'int': hex})
+import torch.utils.data as data
+from torch.utils.data.dataset import T_co
 
 FILENAME = "dataset.pgn"
-
 
 # uppercase white, lowercase black
 DICTIONARY = {
@@ -108,25 +112,20 @@ def board_to_array2(board: chess.Board):
         cells_encoding[0] += OFFSET_CASTLING
         # cells_encoding[4] += OFFSET_CASTLING
 
-   if board.ep_square is not None:
-
-        ts = board.ep_square - 2*(board.ep_square % 8) + 7
-        print(ts)
-
+    if board.ep_square is not None:
+        ts = board.ep_square - 2 * (board.ep_square % 8) + 7
         s = 1 if ts < 32 else -1
 
-        cells_encoding[ts + s*8] += OFFSET_ENPASSANT
+        cells_encoding[ts + s * 8] += OFFSET_ENPASSANT
 
-    print(cells_encoding)
-    print(len(cells_encoding))
+    return cells_encoding
 
 
 def main():
-
     # iterate through each game from the dataset
     for i, game in enumerate(file_parser()):
 
-        print(f"******************GAME {i+1}******************")
+        print(f"******************GAME {i + 1}******************")
 
         # iterate through states tuples
         for (s1, s2), l in game_states(game):
@@ -144,8 +143,73 @@ def main():
             break
 
 
+class MoveDataset(data.Dataset):
+
+    def __init__(self, fname=FILENAME, max_games=5, board_transform=None, move_transform=None):
+        """
+        Move Dataset built from pgn file
+        :param fname: File path to pgn file
+        :param max_games: Maximum number of games to be loaded, set to -1 to load all games
+        :param board_transform: function for transforming board state
+        :param move_transform: function for transforming move ground truth
+        """
+        super().__init__()
+        self.fname = fname
+        self.max_games = max_games
+        self.board_transform = board_transform
+        self.move_transform = move_transform
+
+        # Get only the first max_games, or all of them if max_games = -1
+        it = itertools.islice(file_parser(self.fname), max_games) if max_games != -1 else file_parser(self.fname)
+        games = [game for game in it]
+
+        self.states = list(itertools.chain(*(list(game_states(g)) for g in games)))
+
+    def __len__(self):
+        return len(self.states)
+
+    def __getitem__(self, index):
+        (b1, b2), m = self.states[index]
+        if self.board_transform is not None:
+            b1, b2 = self.board_transform(b1), self.board_transform(b2)
+        if self.move_transform is not None:
+            m = self.move_transform(m)
+        return (b1, b2), m
+
+
+def get_dataloader(fname, max_games=5, batch_size=32, num_workers=5,
+                   board_transform=None, move_transform=None,
+                   split_perc=(0.7, 0.1, 0.2)):
+    """
+    Get dataloader for move dataset
+    :param fname: File path to pgn file
+    :param max_games: Maximum number of games to be loaded, set to -1 to load all games
+    :param batch_size: batch size
+    :param num_workers: workers for the dataloader
+    :param board_transform: function for transforming board state
+    :param move_transform: function for transforming move ground truth
+    :param split_perc: train eval test percentage split, pass a tuple of 3 floats
+    :return: train_dataloader, val_dataloader, test_dataloader
+    """
+    assert sum(split_perc) == 1.0
+    dataset = MoveDataset(fname, max_games, board_transform=board_transform, move_transform=move_transform)
+    tot_samples = len(dataset)
+    t1, t2, t3 = split_perc[0] * tot_samples, (split_perc[0] + split_perc[1]) * tot_samples, tot_samples
+    train_idx = range(0, int(t1))
+    val_idx = range(int(t1), int(t2))
+    test_idx = range(int(t2), int(t3))
+    train_dataset = data.Subset(dataset, indices=train_idx)
+    val_dataset = data.Subset(dataset, indices=val_idx)
+    test_dataset = data.Subset(dataset, indices=test_idx)
+    train_dataloader = data.DataLoader(train_dataset, batch_size=batch_size, num_workers=num_workers, shuffle=True)
+    val_dataloader = data.DataLoader(val_dataset, batch_size=batch_size, num_workers=num_workers, shuffle=False)
+    test_dataloader = data.DataLoader(test_dataset, batch_size=batch_size, num_workers=num_workers, shuffle=False)
+    return train_dataloader, val_dataloader, test_dataloader
+
+
 if __name__ == '__main__':
-    # main()
+    get_dataloader(FILENAME)
+    main()
 
     fen_white = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
     fen_black = "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"

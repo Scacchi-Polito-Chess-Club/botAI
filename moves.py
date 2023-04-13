@@ -1,10 +1,5 @@
 import chess
 
-def GetMoveFEN(fen1, fen2):
-    board1 = chess.Board(fen1)
-    board2 = chess.Board(fen2)
-    return getMove(board1, board2)
-
 def GetMove(board1, board2):
     set1 = set(board1.piece_map().items())
     set2 = set(board2.piece_map().items())

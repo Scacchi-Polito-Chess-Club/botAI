@@ -23,6 +23,8 @@ DICTIONARY = {
     'K': 12,
 }
 
+inverse_dict = {v: k for k, v in DICTIONARY.items()}
+
 CASTLING = {
     'K': 13,
     'Q': 14,
@@ -106,19 +108,21 @@ def board_to_array2(board: chess.Board):
         cells_encoding[7] += OFFSET_CASTLING
     if 'q' in castling:
         cells_encoding[0] += OFFSET_CASTLING
-        # cells_encoding[4] += OFFSET_CASTLING
 
-   if board.ep_square is not None:
-
+    if board.ep_square is not None:
+        # compute target square index inside cells_encoding
         ts = board.ep_square - 2*(board.ep_square % 8) + 7
-        print(ts)
-
+        # compute offset for ts based on current player
         s = 1 if ts < 32 else -1
 
         cells_encoding[ts + s*8] += OFFSET_ENPASSANT
 
+    return cells_encoding
+
+
+def array_to_board(array: np.ndarray) -> chess.Board:
+    cells_encoding = list(map(lambda x: inverse_dict[x], array))
     print(cells_encoding)
-    print(len(cells_encoding))
 
 
 def main():
@@ -145,11 +149,4 @@ def main():
 
 
 if __name__ == '__main__':
-    # main()
-
-    fen_white = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
-    fen_black = "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"
-
-    board1 = chess.Board(fen=fen_white)
-    print(board1)
-    board_to_array2(board1)
+    main()

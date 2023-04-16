@@ -22,7 +22,10 @@ DICTIONARY = {
     'K': 12,
 }
 
-inverse_dict = {v: k for k, v in DICTIONARY.items()}
+REVERSE_DICTIONARY = {v: k for k, v in DICTIONARY.items()}
+
+TURN_DICTIONARY = {'b': 0, 'w': 1}
+REVERSE_TURN_DICTIONARY = {0: 'b', 1: 'w'}
 
 CASTLING = {
     'K': 13,
@@ -94,23 +97,76 @@ def board_to_array(board: chess.Board) -> np.ndarray:
         cells_encoding[0] += OFFSET_CASTLING
 
     if board.ep_square is not None:
-        # compute target square index inside cells_encoding
-        ts = board.ep_square - 2*(board.ep_square % 8) + 7
-        # compute offset for ts based on current player
-        s = 1 if ts < 32 else -1
+        # compute offset for target ep square based on current player
+        s = 1 if board.ep_square < 32 else -1
 
-        cells_encoding[ts + s*8] += OFFSET_ENPASSANT
+        cells_encoding[board.ep_square + s * 8] += OFFSET_ENPASSANT
+
+    # True if w, False if b
+    turn = str(board.fen()).split()[1]
+    half_move = str(board.fen()).split()[4]
+    full_move = str(board.fen()).split()[5]
+
+    cells_encoding = np.concatenate((cells_encoding, np.array([TURN_DICTIONARY[turn], int(half_move), int(full_move)])),
+                                    dtype=int)
 
     return cells_encoding
 
 
 def array_to_board(array: np.ndarray) -> chess.Board:
-    cells_encoding = list(map(lambda x: inverse_dict[x], array))
-    print(cells_encoding)
+    castling = ""
+    enpassant = None
+
+    for i in range(64):
+        if 20 < array[i] < 100:
+            array[i] = array[i] - 20
+            if i == 0:
+                castling += 'q'
+            elif i == 7:
+                castling += 'k'
+            elif i == 56:
+                castling += 'Q'
+            elif i == 63:
+                castling += 'K'
+
+        if array[i] > 100:
+            array[i] = array[i] - 100
+            s = 1 if i < 32 else -1
+            enpassant = i - s * 8
+
+    cells_dict = {i: chess.Piece(*v) for i, v in enumerate(
+        map(lambda x: (x, False)
+            if x <= OFFSET_COLOR
+            else (x - OFFSET_COLOR, True), array[:64]))}
+
+    board = chess.Board()
+    board.set_piece_map(cells_dict)
+    board.set_castling_fen(''.join(sorted(castling)))
+    board.ep_square = enpassant
+
+    board.turn = bool(array[64])
+    board.halfmove_clock = array[65]
+    board.fullmove_number = array[66]
+
+    return board
 
 
 def main():
-    pass
+    fen_white = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
+    fen_black = "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"
+    fen_ep = "rnbqkbnr/ppp2ppp/8/3p4/4pP2/8/PPPP2PP/RNBQKBNR b KQkq f3 0 2"
+
+    board = chess.Board(fen=fen_ep)
+    # print(board.fen())
+    fen1 = board.fen()
+    array = board_to_array(board)
+    # print(array)
+
+    board2 = array_to_board(array)
+    # print(board2.fen())
+    fen2 = board2.fen()
+
+    print(fen1 == fen2)
 
 
 if __name__ == '__main__':

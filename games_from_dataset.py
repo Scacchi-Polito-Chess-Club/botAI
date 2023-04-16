@@ -49,4 +49,5 @@ def game_states(game: chess.pgn.Game) -> tuple[tuple[str, str], str]:
 
 if __name__ == '__main__':
     # main()
-    file_parser()
+    for a in file_parser():
+        pass

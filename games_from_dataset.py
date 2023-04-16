@@ -1,7 +1,6 @@
 import chess
 import chess.pgn
 import numpy as np
-# np.set_printoptions(formatter={'int': hex})
 
 FILENAME = "dataset.pgn"
 
@@ -76,35 +75,20 @@ def game_states(game: chess.pgn.Game) -> tuple[tuple[str, str], str]:
         old_board = board.copy(stack=False)
         board.push(move)
         # yield the result one at a time
-        # yield (str(old_board), str(board)), move.uci()
-        # yield (old_board.fen(), board.fen()), move.uci()
         yield (old_board, board), move.uci()
 
 
-def board_to_array(board: chess.Board):
-    cells = str(board).split()
-    cells_encoding = np.array(list(map(lambda x: DICTIONARY[x], cells)))
-    castling = str(board.fen()).split()[2]
-    castling_encoding = np.array(list(map(lambda x: CASTLING[x], castling)))
-    enpassant = 0 if board.ep_square is None else (board.ep_square % 8) + 1
+def board_to_array(board: chess.Board) -> np.ndarray:
 
-    board_encoding = np.hstack((cells_encoding, castling_encoding, enpassant))
-    print(board_encoding)
-
-
-def board_to_array2(board: chess.Board):
     cells = str(board).split()
     cells_encoding = np.array(list(map(lambda x: DICTIONARY[x], reversed(cells))))
     castling = str(board.fen()).split()[2]
 
     if 'K' in castling:
-        # cells_encoding[60] += OFFSET_CASTLING
         cells_encoding[63] += OFFSET_CASTLING
     if 'Q' in castling:
         cells_encoding[56] += OFFSET_CASTLING
-        # cells_encoding[60] += OFFSET_CASTLING
     if 'k' in castling:
-        # cells_encoding[4] += OFFSET_CASTLING
         cells_encoding[7] += OFFSET_CASTLING
     if 'q' in castling:
         cells_encoding[0] += OFFSET_CASTLING
@@ -126,26 +110,7 @@ def array_to_board(array: np.ndarray) -> chess.Board:
 
 
 def main():
-
-    # iterate through each game from the dataset
-    for i, game in enumerate(file_parser()):
-
-        print(f"******************GAME {i+1}******************")
-
-        # iterate through states tuples
-        for (s1, s2), l in game_states(game):
-            # print(l)
-            # print()
-            # print(s1)
-            # print()
-            # print(s2)
-            # print()
-            board_to_array2(s1)
-            break
-
-        # for debug purpose, stop at first iteration
-        if i == 0:
-            break
+    pass
 
 
 if __name__ == '__main__':

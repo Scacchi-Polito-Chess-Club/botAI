@@ -108,7 +108,7 @@ def board_to_array2(board: chess.Board):
         cells_encoding[0] += OFFSET_CASTLING
         # cells_encoding[4] += OFFSET_CASTLING
 
-   if board.ep_square is not None:
+    if board.ep_square is not None:
 
         ts = board.ep_square - 2*(board.ep_square % 8) + 7
         print(ts)
@@ -117,8 +117,8 @@ def board_to_array2(board: chess.Board):
 
         cells_encoding[ts + s*8] += OFFSET_ENPASSANT
 
-    print(cells_encoding)
-    print(len(cells_encoding))
+        print(cells_encoding)
+        print(len(cells_encoding))
 
 
 def main():

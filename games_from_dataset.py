@@ -26,7 +26,7 @@ REVERSE_DICTIONARY = {v: k for k, v in DICTIONARY.items()}
 TURN_DICTIONARY = {'b': 0, 'w': 1}
 REVERSE_TURN_DICTIONARY = {0: 'b', 1: 'w'}
 
-CASTLING_INDICES = (0, 7, 56, 63)
+CASTLING_INDICES = {0: 'Q', 7: 'K', 56: 'q', 63: 'k'}
 
 OFFSET_COLOR = 6
 OFFSET_CASTLING = 20
@@ -43,11 +43,14 @@ def file_parser(fname: str = FILENAME) -> chess.pgn.Game:
     :return: one game at a time
     :rtype: chess.pgn.Game
     """
+    i = 0
     with open(fname) as f:
         while True:
             try:
                 game = chess.pgn.read_game(f)
                 if game:
+                    i += 1
+                    print(i)
                     yield game
                 else:
                     return
@@ -72,7 +75,7 @@ def game_states(game: chess.pgn.Game) -> tuple[tuple[str, str], str]:
         old_board = board.copy(stack=False)
         board.push(move)
         # yield the result one at a time
-        yield (old_board.fen(), board.fen()), move.uci()
+        yield (old_board, board), move.uci()
 
 
 def board_to_array(board: chess.Board) -> np.ndarray:
@@ -84,13 +87,13 @@ def board_to_array(board: chess.Board) -> np.ndarray:
     cells_encoding = np.array(list(map(lambda x: DICTIONARY[x], reversed(cells))))
     castling = str(board.fen()).split()[2]
 
-    if 'K' in castling:
-        cells_encoding[63] += OFFSET_CASTLING
-    if 'Q' in castling:
-        cells_encoding[56] += OFFSET_CASTLING
     if 'k' in castling:
-        cells_encoding[7] += OFFSET_CASTLING
+        cells_encoding[63] += OFFSET_CASTLING
     if 'q' in castling:
+        cells_encoding[56] += OFFSET_CASTLING
+    if 'K' in castling:
+        cells_encoding[7] += OFFSET_CASTLING
+    if 'Q' in castling:
         cells_encoding[0] += OFFSET_CASTLING
 
     if board.ep_square is not None:
@@ -141,7 +144,7 @@ def array_to_board(array: np.ndarray) -> chess.Board:
     return board
 
 
-def main():
+def base_test():
     fen_white = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
     fen_black = "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"
     fen_ep = "rnbqkbnr/ppp2ppp/8/3p4/4pP2/8/PPPP2PP/RNBQKBNR b KQkq f3 0 2"
@@ -159,5 +162,31 @@ def main():
     print(fen1 == fen2)
 
 
+def main():
+    # iterate through each game from the dataset
+    for i, game in enumerate(file_parser()):
+
+        print(f"******************GAME {i + 1}******************")
+
+        # iterate through states tuples
+        for (s1, s2), l in game_states(game):
+            fen1 = s1.fen()
+            array = board_to_array(s1)
+            b2 = array_to_board(array)
+            fen2 = b2.fen()
+            c = (fen1 == fen2)
+            if not c:
+                print(s1)
+                print(fen1)
+                print(b2)
+                print(fen2)
+                exit(1)
+
+        # for debug purpose, stop at first iteration
+        if i == 0:
+            pass
+
+
 if __name__ == '__main__':
-    main()
+    # main()
+    file_parser()

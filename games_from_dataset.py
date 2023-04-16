@@ -42,14 +42,11 @@ def file_parser(fname: str = FILENAME) -> chess.pgn.Game:
     :return: one game at a time
     :rtype: chess.pgn.Game
     """
-    i = 0
     with open(fname) as f:
         while True:
             try:
                 game = chess.pgn.read_game(f)
                 if game:
-                    i += 1
-                    print(i)
                     yield game
                 else:
                     return

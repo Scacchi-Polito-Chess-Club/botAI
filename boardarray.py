@@ -29,7 +29,7 @@ OFFSET_ENPASSANT = 100
 
 
 class BoardArray(chess.Board):
-    def __init__(self, array: np.ndarray = None):
+    def __init__(self, *args, array: np.ndarray = None, **kwargs):
         if array is not None:
             castling = ""
             enpassant = None
@@ -50,7 +50,7 @@ class BoardArray(chess.Board):
 
                 else (x - OFFSET_COLOR, True), array[:64]))}
 
-            super().__init__()
+            super().__init__(*args, **kwargs)
             self.set_piece_map(cells_dict)
             self.set_castling_fen(''.join(sorted(castling)))
             self.ep_square = enpassant
@@ -59,7 +59,7 @@ class BoardArray(chess.Board):
             self.halfmove_clock = array[65]
             self.fullmove_number = array[66]
         else:
-            super().__init__()
+            super().__init__(*args, **kwargs)
 
     def to_array(self) -> np.ndarray:
         cells = str(self).split()
@@ -141,4 +141,5 @@ class BoardArray(chess.Board):
 
 
 if __name__ == "__main__":
-    pass
+    fen_white = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
+    ba = BoardArray(fen=fen_white)

@@ -4,33 +4,6 @@ import numpy as np
 
 FILENAME = "dataset.pgn"
 
-# uppercase white, lowercase black
-DICTIONARY = {
-    '.': 0,
-    'p': 1,
-    'n': 2,
-    'b': 3,
-    'r': 4,
-    'q': 5,
-    'k': 6,
-    'P': 7,
-    'N': 8,
-    'B': 9,
-    'R': 10,
-    'Q': 11,
-    'K': 12,
-}
-
-
-TURN_DICTIONARY = {'b': 0, 'w': 1}
-REVERSE_TURN_DICTIONARY = {0: 'b', 1: 'w'}
-
-CASTLING_INDICES = {0: 'Q', 7: 'K', 56: 'q', 63: 'k'}
-
-OFFSET_COLOR = 6
-OFFSET_CASTLING = 20
-OFFSET_ENPASSANT = 100
-
 
 def file_parser(fname: str = FILENAME) -> chess.pgn.Game:
     """

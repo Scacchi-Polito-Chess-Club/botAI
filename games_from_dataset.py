@@ -26,6 +26,8 @@ REVERSE_DICTIONARY = {v: k for k, v in DICTIONARY.items()}
 TURN_DICTIONARY = {'b': 0, 'w': 1}
 REVERSE_TURN_DICTIONARY = {0: 'b', 1: 'w'}
 
+CASTLING_INDICES = (0, 7, 56, 63)
+
 OFFSET_COLOR = 6
 OFFSET_CASTLING = 20
 OFFSET_ENPASSANT = 100
@@ -115,14 +117,7 @@ def array_to_board(array: np.ndarray) -> chess.Board:
     for i in range(64):
         if 20 < array[i] < 100:
             array[i] = array[i] - 20
-            if i == 0:
-                castling += 'q'
-            elif i == 7:
-                castling += 'k'
-            elif i == 56:
-                castling += 'Q'
-            elif i == 63:
-                castling += 'K'
+            castling += CASTLING_INDICES[i]
 
         if array[i] > 100:
             array[i] = array[i] - 100

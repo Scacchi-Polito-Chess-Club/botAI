@@ -189,4 +189,5 @@ def main():
 
 if __name__ == '__main__':
     # main()
-    file_parser()
+    for a in file_parser():
+        pass

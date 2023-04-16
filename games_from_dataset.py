@@ -4,20 +4,19 @@ import numpy as np
 
 FILENAME = "dataset.pgn"
 
-
 # uppercase white, lowercase black
 DICTIONARY = {
     '.': 0,
     'p': 1,
-    'r': 2,
+    'n': 2,
     'b': 3,
-    'n': 4,
+    'r': 4,
     'q': 5,
     'k': 6,
     'P': 7,
-    'R': 8,
+    'N': 8,
     'B': 9,
-    'N': 10,
+    'R': 10,
     'Q': 11,
     'K': 12,
 }
@@ -27,14 +26,7 @@ REVERSE_DICTIONARY = {v: k for k, v in DICTIONARY.items()}
 TURN_DICTIONARY = {'b': 0, 'w': 1}
 REVERSE_TURN_DICTIONARY = {0: 'b', 1: 'w'}
 
-CASTLING = {
-    'K': 13,
-    'Q': 14,
-    'k': 15,
-    'q': 16,
-    '-': 0,
-}
-
+OFFSET_COLOR = 6
 OFFSET_CASTLING = 20
 OFFSET_ENPASSANT = 100
 
@@ -78,12 +70,15 @@ def game_states(game: chess.pgn.Game) -> tuple[tuple[str, str], str]:
         old_board = board.copy(stack=False)
         board.push(move)
         # yield the result one at a time
-        yield (old_board, board), move.uci()
+        yield (old_board.fen(), board.fen()), move.uci()
 
 
 def board_to_array(board: chess.Board) -> np.ndarray:
-
     cells = str(board).split()
+    # flip each row to restore the correct cell ordering
+    for i in range(8):
+        cells[i * 8:i * 8 + 8] = cells[i * 8:i * 8 + 8][::-1]
+
     cells_encoding = np.array(list(map(lambda x: DICTIONARY[x], reversed(cells))))
     castling = str(board.fen()).split()[2]
 

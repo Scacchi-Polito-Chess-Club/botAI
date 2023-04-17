@@ -101,11 +101,12 @@ class BoardArray(chess.Board):
 #     fen_white = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
 #     fen_black = "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"
 #     fen_ep = "rnbqkbnr/ppp2ppp/8/3p4/4pP2/8/PPPP2PP/RNBQKBNR b KQkq f3 0 2"
+#     fen = "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1"
 #
-#     board = chess.Board(fen=fen_ep)
+#     board = chess.Board(fen=fen)
 #     # print(board.fen())
 #     fen1 = board.fen()
-#     array = board_to_array(board)
+#     array = to_array(board)
 #     # print(array)
 #
 #     board2 = array_to_board(array)
@@ -113,7 +114,7 @@ class BoardArray(chess.Board):
 #     fen2 = board2.fen()
 #
 #     print(fen1 == fen2)
-#
+# #
 #
 # def main():
 #     # iterate through each game from the dataset

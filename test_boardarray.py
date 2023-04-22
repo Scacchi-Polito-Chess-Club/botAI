@@ -6,7 +6,7 @@ import boardarray
 
 class TestBoardArray(TestCase):
 
-    def test_board_to_array(self):
+    def test_board_array(self):
         # iterate through each game from the dataset
         for i, game in enumerate(file_parser()):
             if i >= 10:

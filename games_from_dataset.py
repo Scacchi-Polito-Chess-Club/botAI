@@ -1,6 +1,5 @@
 import chess
 import chess.pgn
-import numpy as np
 
 FILENAME = "dataset.pgn"
 

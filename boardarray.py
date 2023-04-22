@@ -46,9 +46,8 @@ class BoardArray(chess.Board):
 
             cells_dict = {i: chess.Piece(*v) for i, v in enumerate(
                 map(lambda x: (x, False)
-                if x <= OFFSET_COLOR
-
-                else (x - OFFSET_COLOR, True), array[:64]))}
+                    if x <= OFFSET_COLOR
+                    else (x - OFFSET_COLOR, True), array[:64]))}
 
             super().__init__(*args, **kwargs)
             self.set_piece_map(cells_dict)

@@ -40,6 +40,6 @@ class TestBoardArray(TestCase):
                 fen1 = s1.fen()
                 b1 = boardarray.BoardArray(fen=fen1)
                 array1 = b1.to_array()
-                b2 = boardarray.BoardArray(array=array1)
+                b2 = boardarray.BoardArray(low_level=array1)
                 fen2 = b2.fen()
                 self.assertEqual(fen1, fen2)

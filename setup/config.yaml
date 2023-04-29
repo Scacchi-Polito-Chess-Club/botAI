@@ -24,10 +24,10 @@ exp_args:
   scheduler: "exp"
 
 encoder:
-  in_dim: 67    # input dimension of encoder
+  input_dim: 67    # input dimension of encoder
   latent_dim: 32   # dimension of encoded features
   type: "linear"   # (linear, conv)
 
 decoder:
-  out_dim: 64   # output dimension of action space
+  output_dim: 64   # output dimension of action space
   type: "linear"   # (linear)

@@ -6,7 +6,7 @@ import games_from_dataset as gd
 import torch.nn as nn
 import torch.utils.data as data
 
-from models import get_model
+from utils.utils_autoencoder import get_autoencoder
 
 
 def parse_arguments():
@@ -112,7 +112,7 @@ def main(args):
 
     if args.wandb is not None:
         raise NotImplementedError('logging not implemented yet')
-    model = get_model(args.encoder, args.decoder, args.latent_dim)
+    model = get_autoencoder(args.encoder, args.decoder, args.latent_dim)
     train_data, val_data, test_data = gd.get_dataloader(fname=args.data,
                                                         num_workers=args.num_workers,
                                                         batch_size=args.bs,

@@ -1,0 +1,33 @@
+name: "botAI"
+
+data_loader:
+  data_path: "./dataset.pgn"
+  n_games: 10
+  n_workers: 0
+
+setup_args:
+  resume: false   # checkpoint path (if true, set path in resume_path)
+  resume_path: None
+  device: "cpu"   # if gpu, set a value in n_gpu
+  n_gpu: None
+  logger: None
+
+exp_args:
+  type_exp: "train"   #type of experiment (train, test)
+  batch_size: 8
+  lr: 0.003    # learning rate
+  epoch: 50
+  eval_step: 10   # rate of evaluation step
+  optimizer: "sgd"  # optimizer (sgd, adam)
+  weight_decay: None
+  dropout: None
+  scheduler: "exp"
+
+encoder:
+  in_dim: 67    # input dimension of encoder
+  latent_dim: 32   # dimension of encoded features
+  type: "linear"   # (linear, conv)
+
+decoder:
+  out_dim: 64   # output dimension of action space
+  type: "linear"   # (linear)

@@ -60,7 +60,7 @@ class BoardArray(chess.Board):
         else:
             super().__init__(*args, **kwargs)
 
-    def to_array(self) -> np.ndarray:
+    def to_array(self) -> tuple[np.ndarray, np.ndarray]:
         cells = str(self).split()
         # flip each row to restore the correct cell ordering
         for i in range(8):
@@ -89,57 +89,13 @@ class BoardArray(chess.Board):
         half_move = str(self.fen()).split()[4]
         full_move = str(self.fen()).split()[5]
 
-        cells_encoding = np.concatenate(
-            (cells_encoding, np.array([TURN_DICTIONARY[turn], int(half_move), int(full_move)])),
-            dtype=int)
+        # additional state information
+        additional = np.array([TURN_DICTIONARY[turn], int(half_move), int(full_move)])
 
-        return cells_encoding
-
-
-# def base_test():
-#     fen_white = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
-#     fen_black = "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"
-#     fen_ep = "rnbqkbnr/ppp2ppp/8/3p4/4pP2/8/PPPP2PP/RNBQKBNR b KQkq f3 0 2"
-#     fen = "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1"
-#
-#     board = chess.Board(fen=fen)
-#     # print(board.fen())
-#     fen1 = board.fen()
-#     array = to_array(board)
-#     # print(array)
-#
-#     board2 = array_to_board(array)
-#     # print(board2.fen())
-#     fen2 = board2.fen()
-#
-#     print(fen1 == fen2)
-# #
-#
-# def main():
-#     # iterate through each game from the dataset
-#     for i, game in enumerate(file_parser()):
-#
-#         print(f"******************GAME {i + 1}******************")
-#
-#         # iterate through states tuples
-#         for (s1, s2), l in game_states(game):
-#             fen1 = s1.fen()
-#             array = board_to_array(s1)
-#             b2 = array_to_board(array)
-#             fen2 = b2.fen()
-#             c = (fen1 == fen2)
-#             if not c:
-#                 print(s1)
-#                 print(fen1)
-#                 print(b2)
-#                 print(fen2)
-#                 exit(1)
-#
-#         # for debug purpose, stop at first iteration
-#         if i == 0:
-#             pass
+        return cells_encoding.reshape((8, 8)), additional
 
 
 if __name__ == "__main__":
     fen_white = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
     ba = BoardArray(fen=fen_white)
+    print(*ba.to_array())

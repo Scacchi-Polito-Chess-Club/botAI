@@ -35,12 +35,12 @@ class BoardArray(chess.Board):
             enpassant = None
 
             for i in range(64):
-                if 20 < array[i] < 100:
-                    array[i] = array[i] - 20
+                if OFFSET_CASTLING < array[i] < OFFSET_ENPASSANT:
+                    array[i] = array[i] - OFFSET_CASTLING
                     castling += CASTLING_INDICES[i]
 
-                if array[i] > 100:
-                    array[i] = array[i] - 100
+                if array[i] > OFFSET_ENPASSANT:
+                    array[i] = array[i] - OFFSET_ENPASSANT
                     s = 1 if i < 32 else -1
                     enpassant = i - s * 8
 

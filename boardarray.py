@@ -27,12 +27,61 @@ OFFSET_COLOR = 6
 OFFSET_CASTLING = 20
 OFFSET_ENPASSANT = 100
 
+MIN_ARRAY_LEGAL_VALUE = 0
+MAX_ARRAY_LEGAL_VALUE = 107
+MIN_INFO_LEGAL_VALUE = 0
+MAX_INFO_LEGAL_VALUE = np.inf
+
+
+def validate_low_level_arg(low_level: tuple) -> tuple[np.ndarray, np.ndarray]:
+    def validate_array():
+        arr = low_level[0]
+        if type(arr) is not np.ndarray:
+            raise RuntimeError("Error: the first element of argument `low_level` must be a numpy ndarray")
+        if arr.shape != (8, 8):
+            raise RuntimeError("Error: the first element of argument `low_level` must have shape (8, 8)")
+        if arr.dtype != int:
+            raise RuntimeError("Error: the first element of argument `low_level` must have integer elements")
+        return arr
+
+    def validate_info():
+        add_info = low_level[1]
+        if add_info is None:
+            add_info = np.array([1, 0, 0])
+        if type(add_info) is not np.ndarray:
+            raise RuntimeError("Error: the second element of argument `low_level` must be either None or a numpy "
+                               "ndarray")
+        if add_info.shape != (3,):
+            raise RuntimeError("Error: the second element of argument `low_level` must be either None or have "
+                               "shape (3,)")
+        if add_info.dtype != int:
+            raise RuntimeError("Error: the second element of argument `low_level` must be either None or have "
+                               "integer elements")
+        return add_info
+
+    if type(low_level) is tuple:
+        if len(low_level) == 2:
+            array = validate_array()
+            additional_info = validate_info()
+
+        else:
+            raise RuntimeError("Error: argument `low_level` must have 2 elements. If you just want to pass the 8x8 "
+                               "matrix, pass a tuple of the form (matrix, None): the next player is assumed to be W "
+                               "and the counters are set to 0.")
+    else:
+        raise RuntimeError("Error: the argument `low_level` must be a tuple of 2 numpy arrays.")
+
+    return array, additional_info
+
 
 class BoardArray(chess.Board):
-    def __init__(self, *args, array: np.ndarray = None, **kwargs):
-        if array is not None:
+    def __init__(self, *args, low_level: tuple = None, **kwargs):
+        if low_level is not None:
             castling = ""
             enpassant = None
+
+            array, additional_info = validate_low_level_arg(low_level)
+            array = array.flatten()
 
             for i in range(64):
                 if OFFSET_CASTLING < array[i] < OFFSET_ENPASSANT:
@@ -47,16 +96,16 @@ class BoardArray(chess.Board):
             cells_dict = {i: chess.Piece(*v) for i, v in enumerate(
                 map(lambda x: (x, False)
                     if x <= OFFSET_COLOR
-                    else (x - OFFSET_COLOR, True), array[:64]))}
+                    else (x - OFFSET_COLOR, True), array))}
 
             super().__init__(*args, **kwargs)
             self.set_piece_map(cells_dict)
             self.set_castling_fen(''.join(sorted(castling)))
             self.ep_square = enpassant
 
-            self.turn = bool(array[64])
-            self.halfmove_clock = array[65]
-            self.fullmove_number = array[66]
+            self.turn = bool(additional_info[0])
+            self.halfmove_clock = additional_info[1]
+            self.fullmove_number = additional_info[2]
         else:
             super().__init__(*args, **kwargs)
 

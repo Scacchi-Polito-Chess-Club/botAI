@@ -251,6 +251,51 @@ class BoardArray(chess.Board):
 
         return arr, additional
 
+    # def to_tensor(self) -> tuple[torch.tensor, np.ndarray]:
+    #     cells = str(self).split()
+    #     # flip each row to restore the correct cell ordering
+    #     for i in range(8):
+    #         cells[i * 8:i * 8 + 8] = cells[i * 8:i * 8 + 8][::-1]
+    #
+    #     tensor = torch.zeros((6, 8, 8))
+    #     for i, j in itertools.product(np.arange(8), np.arange(8)):
+    #         ch = cells[i][j]
+    #         if ch == ch.lower():
+    #             # black
+    #             n = -1
+    #         else:
+    #             # white
+    #             n = 1
+    #             ch = ch.lower()
+    #         tensor[SLICE_DICTIONARY[ch], i, j] = n
+    #
+    #     castling = str(self.fen()).split()[2]
+    #
+    #     for ch in "kqKQ":
+    #         if ch in castling:
+    #             i = REVERSE_CASTLING_INDICES[ch] // 8
+    #             j = REVERSE_CASTLING_INDICES[ch] % 8
+    #             k = SLICE_DICTIONARY[ch]
+    #             tensor[k, i, j] *= 2
+    #
+    #     if self.ep_square is not None:
+    #         s = 1 if self.ep_square < 32 else -1
+    #         n = self.ep_square + s * 8
+    #         i = n // 8
+    #         j = n % 8
+    #         k = SLICE_DICTIONARY['p']
+    #         tensor[k, i, j] *= 2
+    #
+    #     # True if w, False if b
+    #     turn = str(self.fen()).split()[1]
+    #     half_move = str(self.fen()).split()[4]
+    #     full_move = str(self.fen()).split()[5]
+    #
+    #     # additional state information
+    #     additional = np.array([TURN_DICTIONARY[turn], int(half_move), int(full_move)])
+    #
+    #     return tensor, additional
+
 
 if __name__ == "__main__":
     fen_white = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"

@@ -88,11 +88,25 @@ class TestBoardArray(TestCase):
     # in boardarray.py 13 calls to 'raise' -> need to implement 13 test cases
     # first tests created in the same order as encountered in the code
 
-    # 1. TEST TYPE_ERROR -----------------------------------------------------------------------------------------------
+    # 1. TEST RUNTIME_ERROR --------------------------------------------------------------------------------------------
 
-    def test_board_is_ndarray(self):
+    def test_board_shape(self):
         # TODO
         raise NotImplementedError
+
+    def test_info_shape(self):
+        # TODO
+        raise NotImplementedError
+
+    def test_low_level_shape(self):
+        # TODO
+        raise NotImplementedError
+
+    # 2. TEST TYPE_ERROR -----------------------------------------------------------------------------------------------
+
+    def test_board_is_ndarray(self):
+        with self.assertRaises(TypeError):
+            boardarray.BoardArray(low_level=({}, np.empty((0,))))
 
     def test_board_is_int(self):
         # TODO
@@ -110,7 +124,7 @@ class TestBoardArray(TestCase):
         # TODO
         raise NotImplementedError
 
-    # 2. TEST VALUE_ERROR ----------------------------------------------------------------------------------------------
+    # 3. TEST VALUE_ERROR ----------------------------------------------------------------------------------------------
 
     def test_array_boundaries(self):
         # TODO
@@ -129,19 +143,5 @@ class TestBoardArray(TestCase):
         raise NotImplementedError
 
     def test_to_low_level_modes(self):
-        # TODO
-        raise NotImplementedError
-
-    # 2. TEST RUNTIME_ERROR --------------------------------------------------------------------------------------------
-
-    def test_board_shape(self):
-        # TODO
-        raise NotImplementedError
-
-    def test_info_shape(self):
-        # TODO
-        raise NotImplementedError
-
-    def test_low_level_shape(self):
         # TODO
         raise NotImplementedError

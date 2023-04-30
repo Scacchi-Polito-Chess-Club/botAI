@@ -261,6 +261,4 @@ def main():
 
 
 if __name__ == "__main__":
-    fen_white = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
-    ba = BoardArray(fen=fen_white)
-    print(*ba.to_low_level())
+    main()

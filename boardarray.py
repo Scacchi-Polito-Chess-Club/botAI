@@ -43,6 +43,9 @@ def validate_low_level_arg(low_level: tuple) -> tuple[np.ndarray, np.ndarray]:
             raise RuntimeError("Error: the first element of argument `low_level` must have shape (8, 8)")
         if arr.dtype != int:
             raise RuntimeError("Error: the first element of argument `low_level` must have integer elements")
+        if not (np.all(MIN_ARRAY_LEGAL_VALUE <= arr <= MAX_ARRAY_LEGAL_VALUE)):
+            raise RuntimeError("Error: the first element of argument `low_level` cannot have elements outside the "
+                               f"range [{MIN_ARRAY_LEGAL_VALUE},{MAX_ARRAY_LEGAL_VALUE}]")
         return arr
 
     def validate_info():
@@ -58,6 +61,9 @@ def validate_low_level_arg(low_level: tuple) -> tuple[np.ndarray, np.ndarray]:
         if add_info.dtype != int:
             raise RuntimeError("Error: the second element of argument `low_level` must be either None or have "
                                "integer elements")
+        if not (np.all(MIN_INFO_LEGAL_VALUE <= add_info <= MAX_INFO_LEGAL_VALUE)):
+            raise RuntimeError("Error: the second element of argument `low_level` must be either None or have elements "
+                               f"in the range [{MIN_INFO_LEGAL_VALUE},{MAX_INFO_LEGAL_VALUE}]")
         return add_info
 
     if type(low_level) is tuple:

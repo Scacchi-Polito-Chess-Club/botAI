@@ -96,8 +96,8 @@ def validate_low_level_arg(low_level: tuple) -> tuple[np.ndarray, np.ndarray, st
             raise RuntimeError("Error: the second element of argument `low_level` must be either None or have "
                                "shape (3,)")
         if add_info.dtype != int:
-            raise ValueError("Error: the second element of argument `low_level` must be either None or have "
-                             "integer elements")
+            raise TypeError("Error: the second element of argument `low_level` must be either None or have "
+                            "integer elements")
         if np.any((add_info < MIN_INFO_LEGAL_VALUE) | (add_info > MAX_INFO_LEGAL_VALUE)):
             raise ValueError("Error: the second element of argument `low_level` must be either None or have values "
                              f"in the range [{MIN_INFO_LEGAL_VALUE},{MAX_INFO_LEGAL_VALUE}]")
@@ -178,7 +178,7 @@ class BoardArray(chess.Board):
     def to_low_level(self, mode='array') -> tuple[np.ndarray, np.ndarray]:
         modes = ['array', 'matrix', 'tensor']
         if mode not in modes:
-            raise RuntimeError(f"Error: argument mode must be one of {modes}")
+            raise ValueError(f"Error: argument mode must be one of {modes}")
 
         cells = str(self).split()
         # flip each row to restore the correct cell ordering

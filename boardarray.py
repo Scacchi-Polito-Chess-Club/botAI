@@ -67,13 +67,13 @@ def validate_low_level_arg(low_level: tuple) -> tuple[np.ndarray, np.ndarray, st
             info = arr[64:]
             arr = arr[:64]
             m = 'array'
-            if not np.all(MIN_ARRAY_LEGAL_VALUE <= arr <= MAX_ARRAY_LEGAL_VALUE):
+            if np.any((arr < MIN_ARRAY_LEGAL_VALUE) | (arr > MAX_ARRAY_LEGAL_VALUE)):
                 raise ValueError("Error: the first array of argument `low_level` cannot have the first 64 values "
                                  f"outside the range [{MIN_ARRAY_LEGAL_VALUE},{MAX_ARRAY_LEGAL_VALUE}]")
 
         elif arr.shape == (8, 8):
             m = 'matrix'
-            if not np.all(MIN_ARRAY_LEGAL_VALUE <= arr <= MAX_ARRAY_LEGAL_VALUE):
+            if np.any((arr < MIN_ARRAY_LEGAL_VALUE) | (arr > MAX_ARRAY_LEGAL_VALUE)):
                 raise ValueError("Error: the matrix of argument `low_level` cannot have values outside the "
                                  f"range [{MIN_ARRAY_LEGAL_VALUE},{MAX_ARRAY_LEGAL_VALUE}]")
         elif arr.shape == (6, 8, 8):
@@ -98,7 +98,7 @@ def validate_low_level_arg(low_level: tuple) -> tuple[np.ndarray, np.ndarray, st
         if add_info.dtype != int:
             raise ValueError("Error: the second element of argument `low_level` must be either None or have "
                              "integer elements")
-        if not (np.all(MIN_INFO_LEGAL_VALUE <= add_info <= MAX_INFO_LEGAL_VALUE)):
+        if np.any((add_info < MIN_INFO_LEGAL_VALUE) | (add_info > MAX_INFO_LEGAL_VALUE)):
             raise ValueError("Error: the second element of argument `low_level` must be either None or have values "
                              f"in the range [{MIN_INFO_LEGAL_VALUE},{MAX_INFO_LEGAL_VALUE}]")
         return add_info

@@ -86,7 +86,7 @@ def validate_low_level_arg(low_level: tuple) -> tuple[np.ndarray, np.ndarray, st
         return arr, info, m
 
     def validate_info(info):
-        add_info = info if info else low_level[1]
+        add_info = info if info is not None else low_level[1]
         if add_info is None:
             add_info = np.array([1, 0, 0])
         if type(add_info) is not np.ndarray:

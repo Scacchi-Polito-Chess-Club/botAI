@@ -21,10 +21,9 @@ class TestBoardArray(TestCase):
     FEN2 = "rnbqk1nr/p3ppbp/2p3p1/1p1pP3/3P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq d6 0 6"
 
     def test_array_to_board(self):
-        array = np.array(self.ARRAY1)
-        info = np.array(self.INFO1)
+        array = np.concatenate((np.array(self.ARRAY1), np.array(self.INFO1)))
         b1 = chess.Board(fen=self.FEN1)
-        b2 = boardarray.BoardArray(low_level=(array, info))
+        b2 = boardarray.BoardArray(low_level=(array, None))
         self.assertEqual(b1, b2)
 
     def test_matrix_to_board(self):

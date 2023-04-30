@@ -11,7 +11,7 @@ class TestBoardArray(TestCase):
         array = np.array([30, 0, 9, 11, 12, 9, 0, 30, 7, 7, 0, 0, 0, 0, 7, 7, 0, 0, 8,
                           0, 0, 8, 0, 0, 0, 0, 7, 0, 7, 7, 0, 0, 0, 0, 1, 7, 101, 0,
                           0, 0, 0, 0, 0, 1, 0, 2, 1, 0, 1, 1, 0, 0, 0, 1, 3, 1, 4,
-                          2, 3, 5, 0, 4, 6, 0]).reshape((8,8))
+                          2, 3, 5, 0, 4, 6, 0]).reshape((8, 8))
         info = np.array([1, 0, 8])
         fen = "rnbq1rk1/pp3pbp/3p1np1/2pPp3/2P1PP2/2N2N2/PP4PP/R1BQKB1R w KQ e6 0 8"
         b1 = chess.Board(fen=fen)

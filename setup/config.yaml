@@ -19,6 +19,7 @@ exp_args:
   epoch: 50
   eval_step: 10   # rate of evaluation step
   optimizer: "sgd"  # optimizer (sgd, adam)
+  loss: "cross_ent"   # loss (mse, cross_ent)
   weight_decay: None
   dropout: None
   scheduler: "exp"

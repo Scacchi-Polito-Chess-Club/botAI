@@ -6,10 +6,68 @@ import boardarray
 
 
 class TestBoardArray(TestCase):
-    ARRAY1 = [30, 0, 9, 11, 12, 9, 0, 30, 7, 7, 0, 0, 0, 0, 7, 7, 0, 0, 8,
-              0, 0, 8, 0, 0, 0, 0, 7, 0, 7, 7, 0, 0, 0, 0, 1, 7, 101, 0,
-              0, 0, 0, 0, 0, 1, 0, 2, 1, 0, 1, 1, 0, 0, 0, 1, 3, 1, 4,
-              2, 3, 5, 0, 4, 6, 0]
+    TENSOR1 = np.array((((0, 0, 0, 0, 0, 0, 0, 0),
+                       (1, 1, 0, 0, 0, 0, 1, 1),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 1, 0, 1, 1, 0, 0),
+                       (0, 0, -1, 1, -2, 0, 0, 0),
+                       (0, 0, 0, -1, 0, 0, -1, 0),
+                       (-1, -1, 0, 0, 0, -1, 0, -1),
+                       (0, 0, 0, 0, 0, 0, 0, 0)),
+
+                      ((0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 1, 0, 0, 1, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, -1, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, -1, 0, 0, 0, 0, 0, 0)),
+
+                      ((0, 0, 1, 0, 0, 1, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, -1, 0),
+                       (0, 0, -1, 0, 0, 0, 0, 0)),
+
+                      ((2, 0, 0, 0, 0, 0, 0, 2),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (-1, 0, 0, 0, 0, -1, 0, 0)),
+
+                      ((0, 0, 0, 1, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, -1, 0, 0, 0, 0)),
+
+                      ((0, 0, 0, 0, 1, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, 0, 0),
+                       (0, 0, 0, 0, 0, 0, -1, 0))))
+
+    ARRAY1 = [30, 0, 9, 11, 12, 9, 0, 30,
+              7, 7, 0, 0, 0, 0, 7, 7,
+              0, 0, 8, 0, 0, 8, 0, 0,
+              0, 0, 7, 0, 7, 7, 0, 0,
+              0, 0, 1, 7, 101, 0, 0, 0,
+              0, 0, 0, 1, 0, 2, 1, 0,
+              1, 1, 0, 0, 0, 1, 3, 1,
+              4, 2, 3, 5, 0, 4, 6, 0]
     INFO1 = [1, 0, 8]
     FEN1 = "rnbq1rk1/pp3pbp/3p1np1/2pPp3/2P1PP2/2N2N2/PP4PP/R1BQKB1R w KQ e6 0 8"
 
@@ -35,35 +93,53 @@ class TestBoardArray(TestCase):
         self.assertEqual(b1, b2)
 
     def test_tensor_to_board(self):
-        # TODO
-        raise NotImplementedError
+        tensor = np.array(self.TENSOR1)
+        info = np.array(self.INFO1)
+        b1 = chess.Board(fen=self.FEN1)
+        b2 = boardarray.BoardArray(low_level=(tensor, info))
+        self.assertEqual(b1, b2)
 
     # ------------------------------------------- TEST FROM BOARD ------------------------------------------------------
 
     def test_board_to_array(self):
-        # TODO: THIS TEST FAILS
         array = np.concatenate((np.array(self.ARRAY1), np.array(self.INFO1)))
-        b1 = boardarray.BoardArray()
+        b1 = boardarray.BoardArray(fen=self.FEN1)
         b2_array, b2_info = b1.to_low_level(mode='array')
         self.assertEqual(array.tolist(), b2_array.tolist())
 
     def test_board_to_matrix(self):
-        array = np.array(self.ARRAY2)
-        info = np.array(self.INFO2)
-        b1 = boardarray.BoardArray(fen=self.FEN2)
+        array = np.array(self.ARRAY1)
+        info = np.array(self.INFO1)
+        b1 = boardarray.BoardArray(fen=self.FEN1)
         b2_array, b2_info = b1.to_low_level(mode='matrix')
         self.assertEqual(array.tolist(), b2_array.flatten().tolist())
         self.assertEqual(info.tolist(), b2_info.tolist())
 
     def test_board_to_tensor(self):
-        # TODO
-        raise NotImplementedError
+        tensor = np.array(self.TENSOR1)
+        info = np.array(self.INFO1)
+        b1 = boardarray.BoardArray(fen=self.FEN1)
+        b2_array, b2_info = b1.to_low_level(mode='tensor')
+        self.assertEqual(tensor.tolist(), b2_array.tolist())
+        self.assertEqual(info.tolist(), b2_info.tolist())
 
     # ------------------------------------------- COMPLETE TEST --------------------------------------------------------
 
     def test_array(self):
-        # TODO
-        raise NotImplementedError
+        # iterate through each game from the dataset
+        for i, game in enumerate(file_parser()):
+            if i >= 10:
+                return
+            print(f"******************GAME {i + 1}******************")
+            # iterate through states tuples
+            for (s1, s2), l in game_states(game):
+                fen1 = s1.fen()
+                b1 = boardarray.BoardArray(fen=fen1)
+                array1 = b1.to_low_level(mode='array')
+                b2 = boardarray.BoardArray(low_level=array1)
+                fen2 = b2.fen()
+                self.assertEqual(fen1, fen2)
+
 
     def test_matrix(self):
         # iterate through each game from the dataset
@@ -81,8 +157,19 @@ class TestBoardArray(TestCase):
                 self.assertEqual(fen1, fen2)
 
     def test_tensor(self):
-        # TODO
-        raise NotImplementedError
+        # iterate through each game from the dataset
+        for i, game in enumerate(file_parser()):
+            if i >= 10:
+                return
+            print(f"******************GAME {i + 1}******************")
+            # iterate through states tuples
+            for (s1, s2), l in game_states(game):
+                fen1 = s1.fen()
+                b1 = boardarray.BoardArray(fen=fen1)
+                array1 = b1.to_low_level(mode='tensor')
+                b2 = boardarray.BoardArray(low_level=array1)
+                fen2 = b2.fen()
+                self.assertEqual(fen1, fen2)
 
     # ------------------------------------------- TEST VALIDATION ------------------------------------------------------
     # in boardarray.py 13 calls to 'raise' -> need to implement 13 test cases
@@ -91,16 +178,17 @@ class TestBoardArray(TestCase):
     # 1. TEST RUNTIME_ERROR --------------------------------------------------------------------------------------------
 
     def test_board_shape(self):
-        # TODO
-        raise NotImplementedError
+        with self.assertRaises(RuntimeError):
+            boardarray.BoardArray(low_level=((np.ones((9, 8), dtype=int), None)))
 
     def test_info_shape(self):
-        # TODO
-        raise NotImplementedError
+        with self.assertRaises(RuntimeError):
+            boardarray.BoardArray(low_level=((np.ones((8, 8), dtype=int), np.ones(2, dtype=int))))
 
     def test_low_level_shape(self):
-        # TODO
-        raise NotImplementedError
+        with self.assertRaises(RuntimeError):
+            boardarray.BoardArray(low_level=((np.ones((8, 8), dtype=int),
+                                              np.ones(3, dtype=int), np.ones(2, dtype=int))))
 
     # 2. TEST TYPE_ERROR -----------------------------------------------------------------------------------------------
 
@@ -109,39 +197,46 @@ class TestBoardArray(TestCase):
             boardarray.BoardArray(low_level=({}, np.empty((0,))))
 
     def test_board_is_int(self):
-        # TODO
-        raise NotImplementedError
+        with self.assertRaises(TypeError):
+            boardarray.BoardArray(low_level=(np.ones((8, 8), dtype=float), np.empty((0,))))
 
     def test_info_is_ndarray(self):
-        # TODO
-        raise NotImplementedError
+        with self.assertRaises(TypeError):
+            boardarray.BoardArray(low_level=(np.ones((8, 8), dtype=int), (3)))
 
     def test_info_is_int(self):
-        # TODO
-        raise NotImplementedError
+        with self.assertRaises(TypeError):
+            boardarray.BoardArray(low_level=(np.ones((8, 8), dtype=int), np.ones(3, dtype=float)))
 
     def test_low_level_is_tuple(self):
-        # TODO
-        raise NotImplementedError
+        with self.assertRaises(TypeError):
+            boardarray.BoardArray(low_level=(np.ones((8, 8), dtype=int)))
 
     # 3. TEST VALUE_ERROR ----------------------------------------------------------------------------------------------
 
     def test_array_boundaries(self):
-        # TODO
-        raise NotImplementedError
+        array = np.concatenate((np.array(self.ARRAY1), np.array(self.INFO1)))
+        array[6] -= 120
+        with self.assertRaises(ValueError):
+            boardarray.BoardArray(low_level=(array, None))
 
     def test_matrix_boundaries(self):
-        # TODO
-        raise NotImplementedError
+        matrix = np.array(self.ARRAY1).reshape((8,8))
+        matrix[3][3] -= 120
+        with self.assertRaises(ValueError):
+            boardarray.BoardArray(low_level=(matrix, None))
 
     def test_tensor_boundaries(self):
-        # TODO
-        raise NotImplementedError
+        tensor = self.TENSOR1
+        tensor[3][3][3] += 3
+        with self.assertRaises(ValueError):
+            boardarray.BoardArray(low_level=(tensor, None))
 
     def test_info_boundaries(self):
-        # TODO
-        raise NotImplementedError
+        with self.assertRaises(ValueError):
+            boardarray.BoardArray(low_level=(np.zeros((8, 8), dtype=int), np.array((1, -4, 0))))
 
     def test_to_low_level_modes(self):
-        # TODO
-        raise NotImplementedError
+        with self.assertRaises(ValueError):
+            b = boardarray.BoardArray(fen=self.FEN1)
+            b.to_low_level(mode='matrice')

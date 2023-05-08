@@ -78,8 +78,9 @@ def validate_low_level_arg(low_level: tuple) -> tuple[np.ndarray, np.ndarray, st
                                  f"range [{MIN_ARRAY_LEGAL_VALUE},{MAX_ARRAY_LEGAL_VALUE}]")
         elif arr.shape == (6, 8, 8):
             m = 'tensor'
-            if not np.all(arr in [-1, 0, 1]):
-                raise ValueError("Error: the tensor of argument `low_level` cannot have values different from -1, 0, 1")
+            if not np.all(np.isin(arr, [-2, -1, 0, 1, 2])):
+                raise ValueError("Error: the tensor of argument `low_level` cannot have values different from"
+                                 " -2, 1, 0, 1, 2")
         else:
             raise RuntimeError("Error: the first element of argument `low_level` must have either shape (67,), (8,8) or"
                                "(6, 8, 8)")
@@ -129,17 +130,21 @@ class BoardArray(chess.Board):
             if mode == 'tensor':
                 for i in range(64):
                     # set castling possibility
-                    if array[CHANNEL_DICTIONARY['r']][i] in [2, -2]:
+                    if np.array(array[CHANNEL_DICTIONARY['r']]).flatten()[i] in [2, -2]:
                         castling += CASTLING_INDICES[i]
                     # set enpassant possibility
-                    if array[CHANNEL_DICTIONARY['p']][i] in [2, -2]:
+                    if np.array(array[CHANNEL_DICTIONARY['p']]).flatten()[i] in [2, -2]:
                         s = 1 if i < 32 else -1
                         enpassant = i - s * 8
 
                 array[array == 2] = 1
+                array[array == -2] = -1
+
                 for i in range(6):
-                    array[i][array == 1] = i + 1
+                    array[i][array[i] == 1] = i + 1 + OFFSET_COLOR
+                    array[i][array[i] == -1] = i + 1
                 array = np.sum(array, axis=0)
+                array = array.flatten()
                 cells_dict = {i: chess.Piece(*v) for i, v in enumerate(
                     map(lambda x: (x, False)
                         if x <= OFFSET_COLOR
@@ -179,7 +184,6 @@ class BoardArray(chess.Board):
         modes = ['array', 'matrix', 'tensor']
         if mode not in modes:
             raise ValueError(f"Error: argument mode must be one of {modes}")
-
         cells = str(self).split()
         # flip each row to restore the correct cell ordering
         for i in range(8):
@@ -206,7 +210,7 @@ class BoardArray(chess.Board):
                     # white
                     n = 1
                     ch = ch.lower()
-                arr[CHANNEL_DICTIONARY[ch], i // 8, i % 8] = n
+                arr[CHANNEL_DICTIONARY[ch], 7 - (i // 8), 7 - (i % 8)] = n
 
             castling = str(self.fen()).split()[2]
 

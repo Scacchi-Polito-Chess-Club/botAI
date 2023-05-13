@@ -1,3 +1,6 @@
+import itertools
+import math
+
 import chess
 import chess.pgn
 
@@ -45,8 +48,9 @@ def game_states(game: chess.pgn.Game) -> tuple[tuple[str, str], str]:
         # yield the result one at a time
         yield (old_board, board), move.uci()
 
-
+        
 if __name__ == '__main__':
     # main()
     for a in file_parser():
         pass
+

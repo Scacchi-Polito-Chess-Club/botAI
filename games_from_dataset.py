@@ -8,6 +8,7 @@ def file_parser(fname: str = FILENAME) -> chess.pgn.Game:
     """
     This function yields one game at a time, taken from the file @fname.
 
+    Args:
     :param fname: the name of the pgn dataset file
     :type fname: str
     :return: one game at a time
@@ -42,25 +43,10 @@ def game_states(game: chess.pgn.Game) -> tuple[tuple[str, str], str]:
         old_board = board.copy(stack=False)
         board.push(move)
         # yield the result one at a time
-        # yield str(old_board), str(board)
-        yield (old_board.fen(), board.fen()), move.uci()
-
-
-def main():
-
-    # iterate through each game from the dataset
-    for i, game in enumerate(file_parser()):
-
-        print(f"******************GAME {i+1}******************")
-
-        # iterate through states tuples
-        for s in game_states(game):
-            print(s)
-
-        # for debug purpose, stop at first iteration
-        # if i == 0:
-        #     break
+        yield (old_board, board), move.uci()
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    for a in file_parser():
+        pass

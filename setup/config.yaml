@@ -7,10 +7,10 @@ data_loader:
 
 setup_args:
   resume: false   # checkpoint path (if true, set path in resume_path)
-  resume_path: None
+  resume_path: null
   device: "cpu"   # if gpu, set a value in n_gpu
-  n_gpu: None
-  logger: None
+  n_gpu: null
+  logger: null
 
 exp_args:
   type_exp: "train"   #type of experiment (train, test)
@@ -20,8 +20,8 @@ exp_args:
   eval_step: 10   # rate of evaluation step
   optimizer: "sgd"  # optimizer (sgd, adam)
   loss: "cross_ent"   # loss (mse, cross_ent)
-  weight_decay: None
-  dropout: None
+  weight_decay: null
+  dropout: null
   scheduler: "exp"
 
 encoder:

@@ -25,7 +25,7 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
     sched = get_scheduler(optim, type=config['exp_args']['scheduler'])
     loss_func = get_loss_func(config['exp_args']['loss'])
 
-    if config['setup_args']['resume'] is not None:
+    if config['setup_args']['resume']:
         raise NotImplementedError()
 
     init_epoch = 0
@@ -39,7 +39,7 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
             optim.step()
         sched.step()
 
-        if epoch % args.eval_step == 0:
+        if epoch % config['exp_args']['epoch'] == 0:
             eval_stats = test(model, val_data)
             print(eval_stats)
 

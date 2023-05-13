@@ -34,7 +34,7 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
             b1, b2 = b1.to(device).float(), b2.to(device).float()
             optim.zero_grad()
             move = model(b1, b2)
-            loss = loss_func(move, move_gt)
+            loss = loss_func(move, torch.tensor(move_gt))
             loss.backward()
             optim.step()
         sched.step()

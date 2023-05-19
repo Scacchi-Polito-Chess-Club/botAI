@@ -18,8 +18,8 @@ class ActionSpace():
     def __init__(self):
         self.square_to_letter = self._get_square_to_letter()
         self.board_moves = BOARD_SIZE * BOARD_SIZE
-        self.promotion_moves_per_side = ((BOARD_ROWS - EDGE_COLUMNS)*3 + EDGE_COLUMNS)
-        self.promotion_moves =  self.promotion_moves_per_side * len(PIECE_SYMBOLS) * 2
+        self.promotion_moves_per_side = ((BOARD_ROWS - EDGE_COLUMNS)*3 + EDGE_COLUMNS * 2)
+        self.promotion_moves =  self.promotion_moves_per_side * (len(PIECE_SYMBOLS)-1) * 2 # `* 2` is the number of sides
         self.action_space_size = self.board_moves + self.promotion_moves 
 
     def _get_square_to_letter(self) -> str:
@@ -62,7 +62,7 @@ class ActionSpace():
             move_string = f'{from_square_uci}{to_square_uci}'
         else: # Promotion move (quite trickier)
             index_move = index_move - self.board_moves
-            promotion_piece = PIECE_SYMBOLS[index_move // len(PIECE_SYMBOLS) + 1] # +1 because of the None piece
+            promotion_piece = PIECE_SYMBOLS[index_move // (len(PIECE_SYMBOLS) - 1)] # +1 because of the None piece
             # 0 => white, 1 => black
             side = index_move // self.promotion_moves_per_side
             if side == 0: # White
@@ -107,24 +107,26 @@ class ActionSpace():
             index_move = index_move + move.to_square
         else:
             index_move = 0 # Initialized
-            from_square_row = move.from_square % BOARD_SIZE # Row
-            if from_square_row > (BOARD_ROWS/2):
+            to_square_row = move.to_square // BOARD_ROWS # Row
+            if to_square_row == BOARD_ROWS - 1:
                 side = 0 # White
-            else:
+            elif to_square_row == 0:
                 side = 1 # Black
+            else:
+                raise AssertionError('Promotion from row {from_square_row} to row {to_square_row}!!')
             index_move += side * self.promotion_moves_per_side
-            from_square_column = move.from_square % BOARD_SIZE # Column
-            to_square_column = move.to_square % BOARD_SIZE # Column
-            if from_square_column < 2: # Left edge cell
-                assert to_square_column < 2
+            from_square_column = move.from_square % BOARD_ROWS # Column
+            to_square_column = move.to_square % BOARD_ROWS # Column
+            if from_square_column == 0: # Left edge cell
+                assert to_square_column < 2, f'Promotion from column {from_square_column} to column {to_square_column}!!'
                 index_move += to_square_column
-            elif from_square_column > self.promotion_moves_per_side - 2: # Right edge cell
-                assert to_square_column > BOARD_ROWS-2
+            elif from_square_column == BOARD_ROWS-1: # Right edge cell
+                assert to_square_column > BOARD_ROWS-2, f'Promotion from column {from_square_column} to column {to_square_column}!!'
                 index_move += self.promotion_moves_per_side - (to_square_column%2)
             else:
                 assert to_square_column >=2 and to_square_column <= BOARD_ROWS-2
-                index_move += (from_square_column - 3) + (to_square_column % 3 - 1)
-            index *= move.promotion - 1 # Offset of the promotion piece
+                index_move += (from_square_column % len(PIECE_SYMBOLS)) + (to_square_column % 3 - 1)
+            index_move *= move.promotion - 1 # Offset of the promotion piece
             index_move += self.board_moves # Offset of all moves that are not promotions
             pass
         action[index_move] = 1
@@ -135,7 +137,7 @@ def main():
     logging.basicConfig(level = logging.INFO)
     a = ActionSpace()
     action_space_test = [0 for _ in range(a.action_space_size)]
-    action_space_test[4097] = 1
+    action_space_test[4096] = 1
 
     move = a.decode_action(action_space_test)
     logging.info(move.uci())

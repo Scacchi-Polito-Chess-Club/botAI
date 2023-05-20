@@ -7,12 +7,6 @@ from actionspace import ActionSpace
 def games_dataset():
     yield file_parser('dataset.pgn')
 
-def test_encode_decode_consistency():
-    pass
-
-def test_decode_encode_consistency():
-    pass
-
 def test_promotion_exceptions():
     pass
 
@@ -29,3 +23,4 @@ def test_real_games_consistency(games_dataset):
                 raise err
             assert decoded_move == move, f'Dataset move: \n\tfrom_square {move.from_square}\n\t to_square{move.to_square}\nDecoded Move:\n\tfrom_square {decoded_move.from_square}\n\tto_square {decoded_move.to_square}'
         game_count += 1
+    logging.info(f'Tests passed for {game_count} games')

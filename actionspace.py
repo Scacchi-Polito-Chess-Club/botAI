@@ -62,7 +62,9 @@ class ActionSpace():
             move_string = f'{from_square_uci}{to_square_uci}'
         else: # Promotion move (quite trickier)
             index_move = index_move - self.board_moves
-            promotion_piece = PIECE_SYMBOLS[index_move // (len(PIECE_SYMBOLS) - 1)] # +1 because of the None piece
+            index_promotion = index_move // (self.promotion_moves_per_side * 2)
+            promotion_piece = PIECE_SYMBOLS[index_promotion + 1] # +1 because of the None piece
+            index_move = index_move - index_promotion * (self.promotion_moves_per_side * 2)
             # 0 => white, 1 => black
             side = index_move // self.promotion_moves_per_side
             if side == 0: # White
@@ -82,10 +84,11 @@ class ActionSpace():
                 from_column_square = COLUMNS[-1] # h
                 to_column_square = COLUMNS[BOARD_ROWS-(index_move%2)] # g || h
             else:
-                to_column_index = index_move // 3 + 1
-                to_column_square = COLUMNS[to_column_index] # b ... e
-                from_column_index = to_column_index + (index_move % 3 - 1)
-                from_column_square = COLUMNS[from_column_index]
+                from_column_index = ((index_move - 2) // 3) + 1 # -2 => `- left edge promotion moves`
+                from_column_square = COLUMNS[from_column_index] # b ... e
+                to_column_offset = ((index_move -2) % 3) - 1 # -2 => `- left edge promotion moves`
+                to_column_index = from_column_index + to_column_offset
+                to_column_square = COLUMNS[to_column_index]
             from_square_uci = f'{from_column_square}{from_row_square}'
             to_square_uci = f'{to_column_square}{to_row_square}'
             assert from_square_uci != to_square_uci
@@ -121,14 +124,12 @@ class ActionSpace():
                 assert to_square_column < 2, f'Promotion from column {from_square_column} to column {to_square_column}!!'
                 index_move += to_square_column
             elif from_square_column == BOARD_ROWS-1: # Right edge cell
-                assert to_square_column > BOARD_ROWS-2, f'Promotion from column {from_square_column} to column {to_square_column}!!'
-                index_move += self.promotion_moves_per_side - (to_square_column%2)
+                assert to_square_column > BOARD_ROWS-3, f'Promotion from column {from_square_column} to column {to_square_column}!!'
+                index_move += self.promotion_moves_per_side - 2 + (to_square_column%2)
             else:
-                assert to_square_column >=2 and to_square_column <= BOARD_ROWS-2
-                index_move += (from_square_column % len(PIECE_SYMBOLS)) + (to_square_column % 3 - 1)
-            index_move *= move.promotion - 1 # Offset of the promotion piece
+                index_move += 2 + ((from_square_column - 1) * 3) + (to_square_column - from_square_column + 1) # (from_square_column - to_square_column + 1) 
+            index_move += (move.promotion - 1) * (self.promotion_moves_per_side * 2) # Offset of the promotion piece
             index_move += self.board_moves # Offset of all moves that are not promotions
-            pass
         action[index_move] = 1
         assert sum(action) == 1
         return action

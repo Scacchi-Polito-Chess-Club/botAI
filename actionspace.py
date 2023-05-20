@@ -99,7 +99,7 @@ def decode_move(action: list[int]|np.ndarray, output_in_uci: bool = True) -> che
         return move.uci()
     return move
 
-def encode_move(move: chess.Move|str, output_in_numpy: bool = True) -> list[int]:
+def encode_move(move: chess.Move|str, output_in_numpy: bool = True) -> list[int]|np.ndarray:
     if isinstance(move, str):
         move = chess.Move.from_uci(move)
     action = [0 for _ in range(ACTION_SPACE_SIZE)]

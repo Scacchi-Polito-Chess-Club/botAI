@@ -132,21 +132,24 @@ def encode_move(move: chess.Move|str, output_in_numpy: bool = True) -> list[int]
         index_move += BOARD_MOVES # Offset of all moves that are not promotions
     action[index_move] = 1
     assert sum(action) == 1
-    return np.array(action)
+    if output_in_numpy:
+        return np.array(action)
+    else:
+        return action
 
 def main():
     logging.basicConfig(level = logging.INFO)
     action = [0 for _ in range(ACTION_SPACE_SIZE)]
     action[4096] = 1 # one-hot-encoded vector
 
-    move = decode_action(action)
+    move = decode_move(action, output_in_uci=False)
     logging.info(move.uci())
 
-    action_from_move = encode_move(move)
+    action_from_move = encode_move(move, output_in_numpy=False)
     logging.info(action_from_move.index(1))
     assert action == action_from_move
 
-    move_from_action = decode_action(action_from_move)
+    move_from_action = decode_move(action_from_move, output_in_uci=False)
     assert move.from_square == move_from_action.from_square
     assert move.to_square == move_from_action.to_square
 

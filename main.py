@@ -4,6 +4,7 @@ from boardarray import BoardArray
 from experiment_launcher import train, test
 from models.autoencoder import *
 import games_from_dataset as gd
+from actionspace import encode_move
 
 
 def main():
@@ -17,7 +18,8 @@ def main():
     train_data, val_data, test_data = gd.get_dataloader(fname=config['data_loader']['data_path'],
                                                         num_workers=config['data_loader']['n_workers'],
                                                         batch_size=config['exp_args']['batch_size'],
-                                                        board_transform=BoardArray.to_low_level)
+                                                        board_transform=BoardArray.to_low_level,
+                                                        move_transform=encode_move)
 
     if config['exp_args']['type_exp'] == 'train':
         train(model, train_data, val_data, config)

@@ -30,5 +30,5 @@ encoder:
   type: "linear"   # (linear, conv)
 
 decoder:
-  output_dim: 64   # output dimension of action space
+  output_dim: 4360 # output dimension of action space
   type: "linear"   # (linear)

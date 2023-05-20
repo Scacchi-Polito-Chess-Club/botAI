@@ -30,11 +30,12 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
 
     init_epoch = 0
     for epoch in range(init_epoch, config['exp_args']['epoch']):
-        for (b1, b2), move_gt in train_data:
+        for (b1, b2), action_gt in train_data:
             b1, b2 = b1.to(device).float(), b2.to(device).float()
+            action_gt = action_gt.to(device).float()
             optim.zero_grad()
-            move = model(b1, b2)
-            loss = loss_func(move, move_gt)
+            action = model(b1, b2)
+            loss = loss_func(action, action_gt)
             loss.backward()
             optim.step()
         sched.step()

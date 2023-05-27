@@ -96,7 +96,7 @@ class TestBoardArray(TestCase):
         self.assertEqual(b1, b2)
 
     def test_tensor_to_board(self):
-        tensor = np.array(self.TENSOR1)
+        tensor = self.TENSOR1.copy()
         info = np.array(self.INFO1)
         b1 = chess.Board(fen=self.FEN1)
         b2 = boardarray.BoardArray(low_level=(tensor, info))
@@ -119,7 +119,7 @@ class TestBoardArray(TestCase):
         self.assertEqual(info.tolist(), b2_info.tolist())
 
     def test_board_to_tensor(self):
-        tensor = np.array(self.TENSOR1)
+        tensor = self.TENSOR1.copy()
         info = np.array(self.INFO1)
         b1 = boardarray.BoardArray(fen=self.FEN1)
         b2_array, b2_info = b1.to_low_level(mode='tensor', additional_info=True)
@@ -229,7 +229,7 @@ class TestBoardArray(TestCase):
             boardarray.BoardArray(low_level=(matrix, None))
 
     def test_tensor_boundaries(self):
-        tensor = self.TENSOR1
+        tensor = self.TENSOR1.copy()
         tensor[3][3][3] += 3
         with self.assertRaises(ValueError):
             boardarray.BoardArray(low_level=(tensor, None))

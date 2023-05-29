@@ -19,11 +19,12 @@ def main():
                                                         num_workers=config['data_loader']['n_workers'],
                                                         batch_size=config['exp_args']['batch_size'],
                                                         board_transform=BoardArray.to_low_level,
-                                                        move_transform=encode_move)
+                                                        move_transform=encode_move,
+                                                        max_games=-1)
 
     if config['exp_args']['type_exp'] == 'train':
         train(model, train_data, val_data, config)
-        test(model)
+        test(model, test_data, config)
     elif config['exp_args']['type_exp'] == 'test':
         ckpt = torch.load(config['setup_args']['resume'])
         model.load_state_dict(ckpt['model_state_dict'], strict=True)

@@ -5,6 +5,7 @@ import chess
 import chess.pgn
 
 import torch.utils.data as data
+import tqdm
 
 FILENAME = "dataset.pgn"
 
@@ -69,7 +70,7 @@ class MoveDataset(data.Dataset):
 
         # Get only the first max_games, or all of them if max_games = -1
         it = itertools.islice(file_parser(self.fname), max_games) if max_games != -1 else file_parser(self.fname)
-        games = [game for game in it]
+        games = [game for game in tqdm.tqdm(it, "Unraveling games")]
 
         self.states = list(itertools.chain(*(list(game_states(g)) for g in games)))
 

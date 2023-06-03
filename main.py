@@ -1,4 +1,7 @@
 import yaml
+
+from boardarray import BoardArray
+from experiment_launcher import train, test
 from models.autoencoder import *
 import games_from_dataset as gd
 
@@ -8,13 +11,13 @@ def main():
         config = yaml.safe_load(f)
     # if you want to change some parameters, you can edit dictionary config (ex. config[par1][par1.1]=val)
 
-    if config['setup_args']['looger'] is not None:
+    if config['setup_args']['logger'] is not None:
         raise NotImplementedError('logging not implemented yet')
     model = AutoEncoder(config)
     train_data, val_data, test_data = gd.get_dataloader(fname=config['data_loader']['data_path'],
                                                         num_workers=config['data_loader']['n_workers'],
                                                         batch_size=config['exp_args']['batch_size'],
-                                                        board_transform=gd.board_to_array2)
+                                                        board_transform=BoardArray.to_low_level)
 
     if config['exp_args']['type_exp'] == 'train':
         train(model, train_data, val_data, config)

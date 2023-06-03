@@ -180,7 +180,7 @@ class BoardArray(chess.Board):
         else:
             super().__init__(*args, **kwargs)
 
-    def to_low_level(self, mode='array') -> tuple[np.ndarray, np.ndarray]:
+    def to_low_level(self, mode='array', additional_info=False) -> tuple[np.ndarray, np.ndarray]:
         modes = ['array', 'matrix', 'tensor']
         if mode not in modes:
             raise ValueError(f"Error: argument mode must be one of {modes}")
@@ -253,16 +253,9 @@ class BoardArray(chess.Board):
                 additional = None
             else:
                 arr = cells_encoding.reshape((8, 8))
-
-        return arr, additional
-
-
-def main():
-    fen_white = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
-    ba = BoardArray()
-    # ba = BoardArray(fen=fen_white)
-    print(*ba.to_low_level(mode='tensor'))
+        if additional_info:
+            return arr, additional
+        else:
+            return arr
 
 
-if __name__ == "__main__":
-    main()

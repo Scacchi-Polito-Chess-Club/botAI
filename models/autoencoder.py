@@ -10,7 +10,7 @@ class AutoEncoder(nn.Module):
     def __init__(self, config: dict):
         super().__init__()
         self.in_dim = config['encoder']['input_dim']
-        self.lat_dim = config['encoder']['laten_dim']
+        self.lat_dim = config['encoder']['latent_dim']
         self.out_dim = config['decoder']['output_dim']
         self.encoder = self.build_encoder(config)
         self.decoder = self.build_decoder(config)

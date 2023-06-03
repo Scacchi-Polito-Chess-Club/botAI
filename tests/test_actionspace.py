@@ -1,7 +1,7 @@
 import pytest
 import logging
 from games_from_dataset import file_parser
-from actionspace import decode_move, encode_move
+from actionspace import decode_move, encode_move, TO_REDUCED_PROMOTION_MAP, PIECE_PROMOTION_SYMBOLS
 
 @pytest.fixture
 def games_dataset():
@@ -14,6 +14,15 @@ def test_dataset_games_consistency(games_dataset):
     game_count = 0
     for game in games_dataset:
         for i, move in enumerate(game.mainline_moves()):
+            try:
+                if move.promotion is not None:
+                    TO_REDUCED_PROMOTION_MAP[move.promotion]
+            except KeyError:
+                logging.warning(f"The move {move.uci()} promote to a piece outside of {PIECE_PROMOTION_SYMBOLS}. It will be skipped by the test. Generally it will be treated as a queen promotion.")
+                action = encode_move(move, output_in_numpy=False)
+                decoded_move = decode_move(action, output_in_uci=False)
+                assert decoded_move.uci()[-1] == "q"
+                continue
             try:
                 action = encode_move(move, output_in_numpy=False)
                 decoded_move = decode_move(action, output_in_uci=False)

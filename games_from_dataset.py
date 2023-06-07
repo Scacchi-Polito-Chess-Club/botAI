@@ -9,7 +9,7 @@ import tqdm
 import numpy as np
 from boardarray import BoardArray
 
-FILENAME = "dataset.pgn"
+FILENAME = "data/dataset.pgn"
 
 
 def file_parser(fname: str = FILENAME) -> chess.pgn.Game:
@@ -123,9 +123,4 @@ def get_dataloader(fname, max_games=5, batch_size=32, num_workers=5,
     test_dataloader = data.DataLoader(test_dataset, batch_size=batch_size, num_workers=num_workers, shuffle=False)
     return train_dataloader, val_dataloader, test_dataloader
 
-
-if __name__ == '__main__':
-    # main()
-    for a in file_parser():
-        pass
 

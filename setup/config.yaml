@@ -1,7 +1,7 @@
 name: "botAI"
 
 data_loader:
-  data_path: "./dataset.pgn"
+  data_path: "./data/dataset.pgn"
   n_games: 10
   n_workers: 0
 

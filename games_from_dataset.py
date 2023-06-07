@@ -6,6 +6,8 @@ import chess.pgn
 
 import torch.utils.data as data
 import tqdm
+import numpy as np
+from boardarray import BoardArray
 
 FILENAME = "dataset.pgn"
 
@@ -54,12 +56,12 @@ def game_states(game: chess.pgn.Game) -> tuple[tuple[str, str], str]:
 
 class MoveDataset(data.Dataset):
 
-    def __init__(self, fname=FILENAME, max_games=5, board_transform=None, move_transform=None):
+    def __init__(self, fname=FILENAME, max_games=5, board_transform='array', move_transform=None):
         """
         Move Dataset built from pgn file
         :param fname: File path to pgn file
         :param max_games: Maximum number of games to be loaded, set to -1 to load all games
-        :param board_transform: function for transforming board state
+        :param board_transform: representation of the board ['array', 'matrix', 'tensor']
         :param move_transform: function for transforming move ground truth
         """
         super().__init__()
@@ -79,8 +81,14 @@ class MoveDataset(data.Dataset):
 
     def __getitem__(self, index):
         (b1, b2), m = self.states[index]
-        if self.board_transform is not None:
-            b1, b2 = self.board_transform(b1), self.board_transform(b2)
+        if self.board_transform == 'array':
+            b1, b2 = BoardArray.to_low_level(b1), BoardArray.to_low_level(b1)
+        if self.board_transform == 'matrix':
+            b1, b2 = BoardArray.to_low_level(b1, mode='matrix'), BoardArray.to_low_level(b2, mode='matrix')
+            b1 = np.expand_dims(b1, axis=0)
+            b2 = np.expand_dims(b2, axis=0)
+        if self.board_transform == 'tensor':
+            b1, b2 = BoardArray.to_low_level(b1, mode='tensor'), BoardArray.to_low_level(b2, mode='tensor')
         if self.move_transform is not None:
             m = self.move_transform(m)
         return (b1, b2), m

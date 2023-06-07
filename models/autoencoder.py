@@ -1,5 +1,6 @@
 import torch.nn as nn
 import torch
+import numpy as np
 
 
 # TODO DEFINE DECODER OUTPUT
@@ -54,6 +55,7 @@ class AutoEncoder(nn.Module):
         z1 = self.encoder(b1)
         z2 = self.encoder(b2)
         z3 = z1 - z2
+        z3 = np.squeeze(z3)
         action_space = self.decoder(z3)
         assert action_space.shape == (batch_size, self.out_dim)
         return action_space

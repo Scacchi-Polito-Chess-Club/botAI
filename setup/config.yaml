@@ -28,8 +28,8 @@ exp_args:
 encoder:
   input_dim: 67    # input dimension of encoder
   latent_dim: 32   # dimension of encoded features
-  type: "linear"   # (linear, conv)
+  type: "conv"   # (linear, conv)
 
 decoder:
-  output_dim: 4360 # output dimension of action space
+  output_dim: 4184 # output dimension of action space
   type: "linear"   # (linear)

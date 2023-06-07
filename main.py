@@ -18,7 +18,7 @@ def main():
     train_data, val_data, test_data = gd.get_dataloader(fname=config['data_loader']['data_path'],
                                                         num_workers=config['data_loader']['n_workers'],
                                                         batch_size=config['exp_args']['batch_size'],
-                                                        board_transform=BoardArray.to_low_level,
+                                                        board_transform='matrix',
                                                         move_transform=encode_move,
                                                         max_games=-1)
 

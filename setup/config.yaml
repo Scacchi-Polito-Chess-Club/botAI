@@ -14,8 +14,8 @@ setup_args:
 
 exp_args:
   type_exp: "train"   #type of experiment (train, test)
-  batch_size: 8
-  lr: 0.003    # learning rate
+  batch_size: 64
+  lr: 0.01    # learning rate
   epoch: 50
   eval_step: 10   # rate of evaluation step
   optimizer: "sgd"  # optimizer (sgd, adam)
@@ -24,11 +24,12 @@ exp_args:
   dropout: null
   scheduler: "exp"
 
+
 encoder:
   input_dim: 67    # input dimension of encoder
   latent_dim: 32   # dimension of encoded features
-  type: "linear"   # (linear, conv)
+  type: "conv"   # (linear, conv)
 
 decoder:
-  output_dim: 64   # output dimension of action space
+  output_dim: 4184 # output dimension of action space
   type: "linear"   # (linear)

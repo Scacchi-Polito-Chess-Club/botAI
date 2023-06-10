@@ -1,6 +1,9 @@
+import os.path
 from unittest import TestCase
 import chess
 import numpy as np
+
+from constants import PROJECT_PATH
 from games_from_dataset import file_parser, game_states
 import boardarray
 
@@ -93,7 +96,7 @@ class TestBoardArray(TestCase):
         self.assertEqual(b1, b2)
 
     def test_tensor_to_board(self):
-        tensor = np.array(self.TENSOR1)
+        tensor = self.TENSOR1.copy()
         info = np.array(self.INFO1)
         b1 = chess.Board(fen=self.FEN1)
         b2 = boardarray.BoardArray(low_level=(tensor, info))
@@ -104,22 +107,22 @@ class TestBoardArray(TestCase):
     def test_board_to_array(self):
         array = np.concatenate((np.array(self.ARRAY1), np.array(self.INFO1)))
         b1 = boardarray.BoardArray(fen=self.FEN1)
-        b2_array, b2_info = b1.to_low_level(mode='array')
+        b2_array, b2_info = b1.to_low_level(mode='array', additional_info=True)
         self.assertEqual(array.tolist(), b2_array.tolist())
 
     def test_board_to_matrix(self):
         array = np.array(self.ARRAY1)
         info = np.array(self.INFO1)
         b1 = boardarray.BoardArray(fen=self.FEN1)
-        b2_array, b2_info = b1.to_low_level(mode='matrix')
+        b2_array, b2_info = b1.to_low_level(mode='matrix', additional_info=True)
         self.assertEqual(array.tolist(), b2_array.flatten().tolist())
         self.assertEqual(info.tolist(), b2_info.tolist())
 
     def test_board_to_tensor(self):
-        tensor = np.array(self.TENSOR1)
+        tensor = self.TENSOR1.copy()
         info = np.array(self.INFO1)
         b1 = boardarray.BoardArray(fen=self.FEN1)
-        b2_array, b2_info = b1.to_low_level(mode='tensor')
+        b2_array, b2_info = b1.to_low_level(mode='tensor', additional_info=True)
         self.assertEqual(tensor.tolist(), b2_array.tolist())
         self.assertEqual(info.tolist(), b2_info.tolist())
 
@@ -127,7 +130,7 @@ class TestBoardArray(TestCase):
 
     def test_array(self):
         # iterate through each game from the dataset
-        for i, game in enumerate(file_parser()):
+        for i, game in enumerate(file_parser(os.path.join(PROJECT_PATH, 'dataset.pgn'))):
             if i >= 10:
                 return
             print(f"******************GAME {i + 1}******************")
@@ -135,15 +138,14 @@ class TestBoardArray(TestCase):
             for (s1, s2), l in game_states(game):
                 fen1 = s1.fen()
                 b1 = boardarray.BoardArray(fen=fen1)
-                array1 = b1.to_low_level(mode='array')
+                array1 = b1.to_low_level(mode='array', additional_info=True)
                 b2 = boardarray.BoardArray(low_level=array1)
                 fen2 = b2.fen()
                 self.assertEqual(fen1, fen2)
 
-
     def test_matrix(self):
         # iterate through each game from the dataset
-        for i, game in enumerate(file_parser()):
+        for i, game in enumerate(file_parser(os.path.join(PROJECT_PATH, 'dataset.pgn'))):
             if i >= 10:
                 return
             print(f"******************GAME {i + 1}******************")
@@ -151,14 +153,14 @@ class TestBoardArray(TestCase):
             for (s1, s2), l in game_states(game):
                 fen1 = s1.fen()
                 b1 = boardarray.BoardArray(fen=fen1)
-                array1 = b1.to_low_level(mode='matrix')
+                array1 = b1.to_low_level(mode='matrix', additional_info=True)
                 b2 = boardarray.BoardArray(low_level=array1)
                 fen2 = b2.fen()
                 self.assertEqual(fen1, fen2)
 
     def test_tensor(self):
         # iterate through each game from the dataset
-        for i, game in enumerate(file_parser()):
+        for i, game in enumerate(file_parser(os.path.join(PROJECT_PATH, 'dataset.pgn'))):
             if i >= 10:
                 return
             print(f"******************GAME {i + 1}******************")
@@ -166,7 +168,7 @@ class TestBoardArray(TestCase):
             for (s1, s2), l in game_states(game):
                 fen1 = s1.fen()
                 b1 = boardarray.BoardArray(fen=fen1)
-                array1 = b1.to_low_level(mode='tensor')
+                array1 = b1.to_low_level(mode='tensor', additional_info=True)
                 b2 = boardarray.BoardArray(low_level=array1)
                 fen2 = b2.fen()
                 self.assertEqual(fen1, fen2)
@@ -227,7 +229,7 @@ class TestBoardArray(TestCase):
             boardarray.BoardArray(low_level=(matrix, None))
 
     def test_tensor_boundaries(self):
-        tensor = self.TENSOR1
+        tensor = self.TENSOR1.copy()
         tensor[3][3][3] += 3
         with self.assertRaises(ValueError):
             boardarray.BoardArray(low_level=(tensor, None))
@@ -239,4 +241,4 @@ class TestBoardArray(TestCase):
     def test_to_low_level_modes(self):
         with self.assertRaises(ValueError):
             b = boardarray.BoardArray(fen=self.FEN1)
-            b.to_low_level(mode='matrice')
+            b.to_low_level(mode='matrice', additional_info=True)

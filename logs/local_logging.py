@@ -13,7 +13,7 @@ def make_logger(log):
                 handler.setLevel(logging.INFO)
 
             elif log == "logfile":
-                handler = logging.FileHandler(time.now().strftime("%Y:%m:%d-%H:%M:%S.log"))
+                handler = logging.FileHandler(time.now().strftime("%Y-%m-%d_%H-%M-%S.log"))
                 handler.setLevel(logging.INFO)
                 formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
                 handler.setFormatter(formatter)
@@ -28,7 +28,7 @@ def make_logger(log):
                     handler.setLevel(logging.INFO)
 
                 elif l == "logfile":
-                    handler = logging.FileHandler(time.now().strftime("%Y:%m:%d-%H:%M:%S.log"))
+                    handler = logging.FileHandler(time.now().strftime("%Y-%m-%d_%H-%M-%S.log"))
                     formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
                     handler.setFormatter(formatter)
                     handler.setLevel(logging.INFO)

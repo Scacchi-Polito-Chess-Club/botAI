@@ -10,7 +10,7 @@ setup_args:
   resume_path: null
   device: "cpu"   # if gpu, set a value in n_gpu
   n_gpu: null
-  logger: null
+  logger: ['logfile', 'stdout']
 
 exp_args:
   type_exp: "train"   #type of experiment (train, test)

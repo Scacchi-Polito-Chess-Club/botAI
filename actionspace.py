@@ -2,7 +2,7 @@ import chess
 from itertools import product
 from itertools import chain
 import json
-import logging
+import logs
 import numpy as np
 
 BOARD_SIZE = 64
@@ -43,7 +43,7 @@ def decode_move(action: list[int] | np.ndarray, output_in_uci: bool = True) -> c
         # index_move = action.one_hot_list.index(1)
         index_move = action.index(1)  # action is a one hot encoded vector
     except Exception as err:
-        logging.error('The one hot encoded list in the action object has no element equal to 1!')
+        logs.error('The one hot encoded list in the action object has no element equal to 1!')
         raise err
 
     if index_move < BOARD_MOVES:  # NOT a promotion move
@@ -97,7 +97,7 @@ def decode_move(action: list[int] | np.ndarray, output_in_uci: bool = True) -> c
     try:
         move = chess.Move.from_uci(move_string)
     except chess.InvalidMoveError as err:
-        logging.error(f"Move {move_string} is not a valid UCI string")
+        logs.error(f"Move {move_string} is not a valid UCI string")
         raise err
     if output_in_uci:
         return move.uci()
@@ -137,7 +137,7 @@ def encode_move(move: chess.Move | str, output_in_numpy: bool = True) -> list[in
         try:
             index_move += TO_REDUCED_PROMOTION_MAP[move.promotion] * (PROMOTION_MOVES_PER_SIDE * 2)  # Offset of the promotion piece
         except KeyError:
-            logging.warning(f"The move {move.uci()} promote to a piece outside of {PIECE_PROMOTION_SYMBOLS}. It will be treated as a queen promotion!")
+            logs.warning(f"The move {move.uci()} promote to a piece outside of {PIECE_PROMOTION_SYMBOLS}. It will be treated as a queen promotion!")
             index_move += TO_REDUCED_PROMOTION_MAP[5] * (PROMOTION_MOVES_PER_SIDE * 2)  # Offset of the promotion piece
         index_move += BOARD_MOVES  # Offset of all moves that are not promotions
     action[index_move] = 1
@@ -149,15 +149,15 @@ def encode_move(move: chess.Move | str, output_in_numpy: bool = True) -> list[in
 
 
 def main():
-    logging.basicConfig(level=logging.INFO)
+    logs.basicConfig(level=logs.INFO)
     action = [0 for _ in range(ACTION_SPACE_SIZE)]
     action[4096] = 1  # one-hot-encoded vector
 
     move = decode_move(action, output_in_uci=False)
-    logging.info(move.uci())
+    logs.info(move.uci())
 
     action_from_move = encode_move(move, output_in_numpy=False)
-    logging.info(action_from_move.index(1))
+    logs.info(action_from_move.index(1))
     assert action == action_from_move
 
     move_from_action = decode_move(action_from_move, output_in_uci=False)

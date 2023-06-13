@@ -8,7 +8,7 @@ from utils.utils_model import *
 
 
 @torch.no_grad()
-def test(model, test_data, config):
+def test(model, test_data, config, logger):
     device = config['setup_args']['device']
     corrects = 0
     totals = 0
@@ -20,10 +20,12 @@ def test(model, test_data, config):
         corrects += torch.sum(predicted_move == gt)
         totals += predicted_move.shape[0]
     accuracy = (corrects/totals).detach().cpu().numpy()
+    if logger is not None:
+        logger.info(f"Eval accuracy {accuracy}")
     return accuracy
 
 
-def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoader, config):
+def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoader, config, logger):
     device = config['setup_args']['device']
     model = model.to(device)
     optim = get_optimizer(model, config['exp_args']['optimizer'].lower(), config['exp_args']['lr'])
@@ -32,8 +34,8 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
 
     if config['setup_args']['resume']:
         raise NotImplementedError()
-
-    print('Start Training')
+    if logger is not None:
+        logger.info('Start Training')
     init_epoch = 0
     for epoch in range(init_epoch, config['exp_args']['epoch']):
         tot_loss = 0.0
@@ -50,11 +52,11 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
             optim.step()
             tot_loss += loss.item()
         sched.step()
-        print(f"Epoch {epoch}: avg loss  {tot_loss / len(train_data)}")
+        if logger is not None:
+            logger.info(f"Epoch {epoch}: avg loss  {tot_loss / len(train_data)}")
 
         if epoch % config['exp_args']['eval_step'] == 0:
-            eval_stats = test(model, val_data, config)
-            print(f"Eval accuracy {eval_stats}")
+            test(model, val_data, config, logger)
 
     return model
 

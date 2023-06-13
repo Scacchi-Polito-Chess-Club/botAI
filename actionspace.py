@@ -1,9 +1,7 @@
 import chess
-from itertools import product
-from itertools import chain
-import json
-import logs
 import numpy as np
+
+import logs
 
 BOARD_SIZE = 64
 BOARD_ROWS = 8

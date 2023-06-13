@@ -1,10 +1,10 @@
 import yaml
-from boardarray import BoardArray
+
+import games_from_dataset as gd
+from actionspace import encode_move
 from experiment_launcher import train, test
 from logs.local_logging import make_logger
 from models.autoencoder import *
-import games_from_dataset as gd
-from actionspace import encode_move
 
 
 def main():

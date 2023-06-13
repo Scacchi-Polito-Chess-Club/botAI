@@ -1,7 +1,9 @@
 import pytest
+
 import logs
-from games_from_dataset import file_parser
 from actionspace import decode_move, encode_move, TO_REDUCED_PROMOTION_MAP, PIECE_PROMOTION_SYMBOLS
+from games_from_dataset import file_parser
+
 
 @pytest.fixture
 def games_dataset():

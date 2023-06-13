@@ -1,9 +1,7 @@
+import torch.optim
+import torch.utils.data as data
 import tqdm
 
-import games_from_dataset as gd
-import torch.optim
-import torch.nn as nn
-import torch.utils.data as data
 from utils.utils_model import *
 
 

@@ -1,6 +1,6 @@
 import logging
-from datetime import datetime as time
 import sys
+from datetime import datetime as time
 
 
 def make_logger(log):

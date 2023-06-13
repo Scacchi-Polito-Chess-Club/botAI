@@ -2,12 +2,13 @@ import datetime
 import itertools
 import os.path
 import pickle
+
 import chess
 import chess.pgn
-
+import numpy as np
 import torch.utils.data as data
 import tqdm
-import numpy as np
+
 from boardarray import BoardArray
 from constants import PROJECT_PATH
 

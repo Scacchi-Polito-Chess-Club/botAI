@@ -5,6 +5,7 @@ from actionspace import encode_move
 from experiment_launcher import train, test
 from logs.local_logging import make_logger
 from models.autoencoder import *
+import wandb
 
 
 def main():
@@ -15,11 +16,14 @@ def main():
     # logger.info(f"{str(logger)} is available")
     model = AutoEncoder(config)
     train_data, val_data, test_data = gd.get_dataloader(fname=config['data_loader']['data_path'],
-                                                        num_workers=config['data_loader']['n_workers'],
                                                         batch_size=config['exp_args']['batch_size'],
-                                                        board_transform='matrix',
-                                                        move_transform=encode_move,
-                                                        max_games=-1)
+                                                        num_workers=config['data_loader']['n_workers'],
+                                                        board_transform='matrix', move_transform=encode_move)
+
+    if config['setup_args']['wandblog'] is True:
+        wandb.init(
+            project="scacchi-polito-bot-ai",
+            config=config)
 
     if config['exp_args']['type_exp'] == 'train':
         train(model, train_data, val_data, config, logger)

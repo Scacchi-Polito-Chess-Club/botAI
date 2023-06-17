@@ -1,8 +1,8 @@
 import torch.optim
 import torch.utils.data as data
 import tqdm
-
 from utils.utils_model import *
+import wandb
 
 
 @torch.no_grad()
@@ -20,6 +20,7 @@ def test(model, test_data, config, logger):
     accuracy = (corrects/totals).detach().cpu().numpy()
     if logger is not None:
         logger.info(f"Eval accuracy {accuracy}")
+        wandb.log({"Eval accuracy": accuracy})
     return accuracy
 
 
@@ -52,7 +53,7 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
         sched.step()
         if logger is not None:
             logger.info(f"Epoch {epoch}: avg loss  {tot_loss / len(train_data)}")
-
+            wandb.log({"Epoch": epoch, "avg loss":  tot_loss / len(train_data)})
         if epoch % config['exp_args']['eval_step'] == 0:
             test(model, val_data, config, logger)
 

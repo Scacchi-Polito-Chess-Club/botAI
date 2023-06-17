@@ -59,7 +59,7 @@ def game_states(game: chess.pgn.Game) -> tuple[tuple[str, str], str]:
 
 class MoveDataset(data.Dataset):
 
-    def __init__(self, fname=FILENAME, max_games=5, board_transform='array', move_transform=None):
+    def __init__(self, fname=FILENAME, max_games=-1, board_transform='array', move_transform=None):
         """
         Move Dataset built from pgn file
         :param fname: File path to pgn file
@@ -107,7 +107,7 @@ class MoveDataset(data.Dataset):
         return (b1, b2), m
 
 
-def get_dataloader(fname, max_games=5, batch_size=32, num_workers=5,
+def get_dataloader(fname, max_games=-1, batch_size=32, num_workers=5,
                    board_transform=None, move_transform=None,
                    split_perc=(0.7, 0.1, 0.2), logger=None):
     """

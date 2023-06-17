@@ -9,6 +9,7 @@ class AutoEncoder(nn.Module):
 
     def __init__(self, config: dict):
         super().__init__()
+        self.in_channel_dim = config['encoder']['in_channel_dim']
         self.in_dim = config['encoder']['input_dim']
         self.lat_dim = config['encoder']['latent_dim']
         self.out_dim = config['decoder']['output_dim']
@@ -24,7 +25,7 @@ class AutoEncoder(nn.Module):
         elif config['encoder']['type'] == 'conv':
             # TODO: check dimensions of the matrix
             # building encoder with Convolutional Layers; THE INPUT MUST BE A MATRIX
-            encoder = nn.Sequential(nn.Conv2d(1, 16, 2, 1), nn.ReLU(),  # 7x7
+            encoder = nn.Sequential(nn.Conv2d(self.in_channel_dim, 16, 2, 1), nn.ReLU(),  # 7x7
                                     nn.Conv2d(16, 32, 3, 1), nn.ReLU(),  # 5x5
                                     nn.Conv2d(32, self.lat_dim, 1, 1),  # 5x5
                                     nn.AvgPool2d(5)  # 32x1 (check hxw)

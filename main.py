@@ -1,3 +1,6 @@
+from datetime import datetime as time
+
+import torch
 import yaml
 
 import games_from_dataset as gd
@@ -23,7 +26,9 @@ def main():
     if config['setup_args']['wandblog'] is True:
         wandb.init(
             project="scacchi-polito-bot-ai",
-            config=config)
+            config=config,
+            name=f'run_{time.now().strftime("%Y-%m-%d_%H-%M-%S")}'
+        )
 
     if config['exp_args']['type_exp'] == 'train':
         train(model, train_data, val_data, config, logger)

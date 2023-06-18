@@ -7,6 +7,7 @@ data_loader:
 
 setup_args:
   wandblog : True
+  wandb_name: null
   resume: false   # checkpoint path (if true, set path in resume_path)
   resume_path: null
   device: "cpu"   # if gpu, set a value in n_gpu

@@ -23,11 +23,14 @@ def main():
                                                         num_workers=config['data_loader']['n_workers'],
                                                         board_transform='matrix', move_transform=encode_move)
 
+    wandb_name = config['wandb_name'] \
+        if config['wandb_name'] is not None else f'run_{time.now().strftime("%Y-%m-%d_%H-%M-%S")}'
+
     if config['setup_args']['wandblog'] is True:
         wandb.init(
             project="scacchi-polito-bot-ai",
             config=config,
-            name=f'run_{time.now().strftime("%Y-%m-%d_%H-%M-%S")}'
+            name=wandb_name
         )
 
     if config['exp_args']['type_exp'] == 'train':

@@ -5,12 +5,15 @@ from experiment_launcher import train, test
 from models.autoencoder import *
 import games_from_dataset as gd
 from actionspace import encode_move
+import utils
 
 
 def main():
     with open("setup/config.yaml", "r") as f:
         config = yaml.safe_load(f)
     # if you want to change some parameters, you can edit dictionary config (ex. config[par1][par1.1]=val)
+
+    utils.set_random_seed(config['seed'])
 
     if config['setup_args']['logger'] is not None:
         raise NotImplementedError('logging not implemented yet')

@@ -8,8 +8,10 @@ import wandb
 @torch.no_grad()
 def test(model, test_data, config, logger):
     device = config['setup_args']['device']
+    loss_func = get_loss_func(config['exp_args']['loss'])
     corrects = 0
     totals = 0
+    tot_loss = 0.0
     for (b1, b2), move_gt in test_data:
         b1, b2, move_gt = b1.to(device).float(), b2.to(device).float(), move_gt.to(device).float()
         move = model(b1, b2)
@@ -17,11 +19,14 @@ def test(model, test_data, config, logger):
         gt = torch.argmax(move_gt, axis=-1)
         corrects += torch.sum(predicted_move == gt)
         totals += predicted_move.shape[0]
+        tot_loss += loss_func(predicted_move, gt)
     accuracy = (corrects/totals).detach().cpu().numpy()
     if logger is not None:
         logger.info(f"Eval accuracy {accuracy}")
         wandb.log({"Eval accuracy": accuracy})
-    return accuracy
+        logger.info(f"Eval loss {tot_loss}")
+        wandb.log({"Eval loss": tot_loss})
+    return accuracy, tot_loss
 
 
 def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoader, config, logger):

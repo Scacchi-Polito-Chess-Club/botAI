@@ -21,10 +21,10 @@ def test(model:nn.Module, test_data: data.DataLoader, config, logger):
         corrects += torch.sum(predicted_move == gt)
         totals += predicted_move.shape[0]
         tot_loss += loss_func(move, move_gt).item()
-    accuracy = (corrects/totals).detach().cpu().numpy()
+    accuracy = (corrects/totals).detach().cpu().numpy()*100
     avg_loss = tot_loss / len(test_data)
     if logger is not None:
-        logger.info(f"Eval accuracy {accuracy}, Eval avg loss {avg_loss}")
+        logger.info(f"\nEval accuracy {accuracy:.2f}%, Eval avg loss {avg_loss:.5f}")
         wandb.log({"Eval accuracy": accuracy, "Eval avg loss": avg_loss})
     return accuracy, avg_loss
 
@@ -39,10 +39,10 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
     if config['setup_args']['resume']:
         raise NotImplementedError()
     if logger is not None:
-        logger.info('Start Training')
+        logger.info('\nStart Training')
     init_epoch = 0
-    t = time.time()
     for epoch in range(init_epoch, config['exp_args']['epoch']):
+        t = time.time()
         tot_loss = 0.0
         corrects = 0
         totals = 0
@@ -63,12 +63,13 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
             corrects += torch.sum(predicted_move == gt)
             totals += predicted_move.shape[0]
         sched.step()
-        t = t - time.time()
-        accuracy = (corrects / totals).detach().cpu().numpy()
+        t = time.time() - t
+        accuracy = (corrects / totals).detach().cpu().numpy()*100
+        avg_loss = tot_loss / len(train_data)
         if logger is not None:
-            logger.info(f"Epoch {epoch}: Train avg loss  {tot_loss / len(train_data)}, "
-                        f"Train accuracy {accuracy}, Time required: {t}")
-            wandb.log({"Epoch": epoch, "Train avg loss":  tot_loss / len(train_data),
+            logger.info(f"\nEpoch {epoch}: Train avg loss  {loss:.5f}, "
+                        f"Train accuracy {accuracy:.2f}%, Time required: {t:.2f}s")
+            wandb.log({"Epoch": epoch, "Train avg loss":  avg_loss,
                        "Train accuracy": accuracy, "Time": t})
         if epoch % config['exp_args']['eval_step'] == 0:
             test(model, val_data, config, logger)

@@ -61,9 +61,10 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
             corrects += torch.sum(predicted_move == gt)
             totals += predicted_move.shape[0]
         sched.step()
+        accuracy = (corrects / totals).detach().cpu().numpy()
         if logger is not None:
-            logger.info(f"Epoch {epoch}: avg loss  {tot_loss / len(train_data)}")
-            wandb.log({"Epoch": epoch, "avg loss":  tot_loss / len(train_data)})
+            logger.info(f"Epoch {epoch}: Train avg loss  {tot_loss / len(train_data)}, Train accuracy {accuracy}")
+            wandb.log({"Epoch": epoch, "Train avg loss":  tot_loss / len(train_data), "Train accuracy": accuracy})
         if epoch % config['exp_args']['eval_step'] == 0:
             test(model, val_data, config, logger)
 

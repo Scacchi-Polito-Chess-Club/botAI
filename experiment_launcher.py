@@ -24,9 +24,9 @@ def test(model:nn.Module, test_data: data.DataLoader, config, logger):
     if logger is not None:
         logger.info(f"Eval accuracy {accuracy}")
         wandb.log({"Eval accuracy": accuracy})
-        logger.info(f"Eval loss {tot_loss}")
-        wandb.log({"Eval loss": tot_loss})
-    return accuracy, tot_loss
+        logger.info(f"Eval avg loss {tot_loss/len(test_data)}")
+        wandb.log({"Eval avg loss": tot_loss/len(test_data)})
+    return accuracy, tot_loss/len(test_data)
 
 
 def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoader, config, logger):

@@ -3,6 +3,7 @@ import torch.utils.data as data
 import tqdm
 from utils.utils_model import *
 import wandb
+import time
 
 
 @torch.no_grad()
@@ -40,6 +41,7 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
     if logger is not None:
         logger.info('Start Training')
     init_epoch = 0
+    t = time.time()
     for epoch in range(init_epoch, config['exp_args']['epoch']):
         tot_loss = 0.0
         corrects = 0
@@ -61,10 +63,13 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
             corrects += torch.sum(predicted_move == gt)
             totals += predicted_move.shape[0]
         sched.step()
+        t = t - time.time()
         accuracy = (corrects / totals).detach().cpu().numpy()
         if logger is not None:
-            logger.info(f"Epoch {epoch}: Train avg loss  {tot_loss / len(train_data)}, Train accuracy {accuracy}")
-            wandb.log({"Epoch": epoch, "Train avg loss":  tot_loss / len(train_data), "Train accuracy": accuracy})
+            logger.info(f"Epoch {epoch}: Train avg loss  {tot_loss / len(train_data)}, "
+                        f"Train accuracy {accuracy}, Time required: {t}")
+            wandb.log({"Epoch": epoch, "Train avg loss":  tot_loss / len(train_data),
+                       "Train accuracy": accuracy, "Time": t})
         if epoch % config['exp_args']['eval_step'] == 0:
             test(model, val_data, config, logger)
 

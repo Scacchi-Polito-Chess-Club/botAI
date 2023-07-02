@@ -6,7 +6,7 @@ import wandb
 
 
 @torch.no_grad()
-def test(model, test_data, config, logger):
+def test(model:nn.Module, test_data: data.DataLoader, config, logger):
     device = config['setup_args']['device']
     loss_func = get_loss_func(config['exp_args']['loss'])
     corrects = 0

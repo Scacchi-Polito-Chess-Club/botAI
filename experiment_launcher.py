@@ -19,14 +19,13 @@ def test(model:nn.Module, test_data: data.DataLoader, config, logger):
         gt = torch.argmax(move_gt, axis=-1)
         corrects += torch.sum(predicted_move == gt)
         totals += predicted_move.shape[0]
-        tot_loss += loss_func(predicted_move, gt)
+        tot_loss += loss_func(move, move_gt).item()
     accuracy = (corrects/totals).detach().cpu().numpy()
+    avg_loss = tot_loss / len(test_data)
     if logger is not None:
-        logger.info(f"Eval accuracy {accuracy}")
-        wandb.log({"Eval accuracy": accuracy})
-        logger.info(f"Eval avg loss {tot_loss/len(test_data)}")
-        wandb.log({"Eval avg loss": tot_loss/len(test_data)})
-    return accuracy, tot_loss/len(test_data)
+        logger.info(f"Eval accuracy {accuracy}, Eval avg loss {avg_loss}")
+        wandb.log({"Eval accuracy": accuracy, "Eval avg loss": avg_loss})
+    return accuracy, avg_loss
 
 
 def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoader, config, logger):
@@ -43,6 +42,8 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
     init_epoch = 0
     for epoch in range(init_epoch, config['exp_args']['epoch']):
         tot_loss = 0.0
+        corrects = 0
+        totals = 0
         loss = torch.tensor(0.0)
         data_iterator = tqdm.tqdm(train_data)
         for (b1, b2), action_gt in data_iterator:
@@ -55,6 +56,10 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
             loss.backward()
             optim.step()
             tot_loss += loss.item()
+            predicted_move = torch.argmax(action, axis=-1)
+            gt = torch.argmax(action_gt, axis=-1)
+            corrects += torch.sum(predicted_move == gt)
+            totals += predicted_move.shape[0]
         sched.step()
         if logger is not None:
             logger.info(f"Epoch {epoch}: avg loss  {tot_loss / len(train_data)}")

@@ -246,3 +246,8 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+#Config and model checkpoint files
+setup/configEx.yaml
+models/*.pt
+
+

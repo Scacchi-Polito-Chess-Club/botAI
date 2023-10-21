@@ -251,3 +251,5 @@ setup/configEx.yaml
 models/*.pt
 
 
+wandb/
+data/

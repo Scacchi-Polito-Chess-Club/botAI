@@ -246,8 +246,10 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# pickle files
-*.pickle
+#Config and model checkpoint files
+setup/configEx.yaml
+models/*.pt
 
-# wandb
-wandb
+wandb/
+data/
+

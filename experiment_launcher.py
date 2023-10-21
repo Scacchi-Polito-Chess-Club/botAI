@@ -1,3 +1,8 @@
+import datetime
+
+import tqdm
+
+import games_from_dataset as gd
 import torch.optim
 import torch.utils.data as data
 import tqdm
@@ -68,6 +73,7 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
         corrects = 0
         totals = 0
         loss = torch.tensor(0.0)
+        # TODO: handling repetition of games if data is resumed by checkpoint
         data_iterator = tqdm.tqdm(train_data)
         for (b1, b2), action_gt in data_iterator:
             data_iterator.set_description(f'Training epoch {epoch}, training loss {loss.item():5f}')

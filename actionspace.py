@@ -1,20 +1,21 @@
 import chess
-from itertools import product
-from itertools import chain
-import json
-import logging
 import numpy as np
+
+import logging
 
 BOARD_SIZE = 64
 BOARD_ROWS = 8
 EDGE_COLUMNS = 2
 COLUMNS = list('abcdefgh')
 ROWS = list('12345678')
-PIECE_SYMBOLS = [None, "p", "n", "b", "r", "q", "k"]  # python-chess notation
+# python-chess notation
+PIECE_SYMBOLS = [None, "p", "n", "b", "r", "q", "k"]  
+PIECE_PROMOTION_SYMBOLS = ["n", "q"]  # Keeping only Knight and Queen to reduce actionspace dimension
+TO_REDUCED_PROMOTION_MAP = {2: 0, 5: 1} # This is used to map the value of the promotion attribute of a chess.Move object
 
 BOARD_MOVES = BOARD_SIZE * BOARD_SIZE
 PROMOTION_MOVES_PER_SIDE = ((BOARD_ROWS - EDGE_COLUMNS) * 3 + EDGE_COLUMNS * 2)
-PROMOTION_MOVES = PROMOTION_MOVES_PER_SIDE * (len(PIECE_SYMBOLS) - 1) * 2  # `* 2` is the number of sides
+PROMOTION_MOVES = PROMOTION_MOVES_PER_SIDE * (len(PIECE_PROMOTION_SYMBOLS)) * 2  # `* 2` is the number of sides
 ACTION_SPACE_SIZE = BOARD_MOVES + PROMOTION_MOVES
 
 square_to_letter = {i + 1: x for i, x in enumerate(COLUMNS)}
@@ -32,7 +33,7 @@ def _from_square_to_uci(square: int) -> str:
 
 def decode_move(action: list[int] | np.ndarray, output_in_uci: bool = True) -> chess.Move | str:
     # 64 * 64 + {[(8-2)*3 + 2*2]*6}*2
-    # BOARD_SIZE * BOARD_SIZE + [(BOARD_ROWS-EDGE_COLUMNS)*3 + EDGE_COLUMNS * len(PIECE_SYMBOLS)] * 2
+    # BOARD_SIZE * BOARD_SIZE + [(BOARD_ROWS-EDGE_COLUMNS)*3 + EDGE_COLUMNS * len(PIECE_PROMOTION_SYMBOLS)] * 2
     # The second term refers to the promotion moves
     # The last `*2` refers to both white and black
 
@@ -60,7 +61,7 @@ def decode_move(action: list[int] | np.ndarray, output_in_uci: bool = True) -> c
     else:  # Promotion move (quite trickier)
         index_move = index_move - BOARD_MOVES
         index_promotion = index_move // (PROMOTION_MOVES_PER_SIDE * 2)
-        promotion_piece = PIECE_SYMBOLS[index_promotion + 1]  # +1 because of the None piece
+        promotion_piece = PIECE_PROMOTION_SYMBOLS[index_promotion]
         index_move = index_move - index_promotion * (PROMOTION_MOVES_PER_SIDE * 2)
         # 0 => white, 1 => black
         side = index_move // PROMOTION_MOVES_PER_SIDE
@@ -131,7 +132,11 @@ def encode_move(move: chess.Move | str, output_in_numpy: bool = True) -> list[in
         else:
             index_move += 2 + ((from_square_column - 1) * 3) + (
                         to_square_column - from_square_column + 1)  # (from_square_column - to_square_column + 1)
-        index_move += (move.promotion - 1) * (PROMOTION_MOVES_PER_SIDE * 2)  # Offset of the promotion piece
+        try:
+            index_move += TO_REDUCED_PROMOTION_MAP[move.promotion] * (PROMOTION_MOVES_PER_SIDE * 2)  # Offset of the promotion piece
+        except KeyError:
+            logging.debug(f"The move {move.uci()} promote to a piece outside of {PIECE_PROMOTION_SYMBOLS}. It will be treated as a queen promotion!")
+            index_move += TO_REDUCED_PROMOTION_MAP[5] * (PROMOTION_MOVES_PER_SIDE * 2)  # Offset of the promotion piece
         index_move += BOARD_MOVES  # Offset of all moves that are not promotions
     action[index_move] = 1
     assert sum(action) == 1

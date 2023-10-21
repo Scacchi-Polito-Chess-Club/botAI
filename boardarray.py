@@ -1,5 +1,3 @@
-import itertools
-
 import chess
 import numpy as np
 
@@ -259,12 +257,3 @@ class BoardArray(chess.Board):
             return arr
 
 
-def main():
-    fen_white = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
-    ba = BoardArray()
-    # ba = BoardArray(fen=fen_white)
-    print(*ba.to_low_level(mode='tensor'))
-
-
-if __name__ == "__main__":
-    main()

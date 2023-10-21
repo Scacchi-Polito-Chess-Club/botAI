@@ -1,12 +1,15 @@
+from datetime import datetime as time
+
+import torch
 import yaml
 
-from boardarray import BoardArray
-from experiment_launcher import train, test
-from models.autoencoder import *
 import games_from_dataset as gd
 from actionspace import encode_move
-import utils
 
+from experiment_launcher import train, test
+from logs.local_logging import make_logger
+from models.autoencoder import *
+import wandb
 
 def main():
     with open("setup/config.yaml", "r") as f:
@@ -15,23 +18,32 @@ def main():
 
     utils.set_random_seed(config['seed'])
 
-    if config['setup_args']['logger'] is not None:
-        raise NotImplementedError('logging not implemented yet')
+    logger = make_logger(config['setup_args']['logger'])
+    # logger.info(f"{str(logger)} is available")
+
     model = AutoEncoder(config)
     train_data, val_data, test_data = gd.get_dataloader(fname=config['data_loader']['data_path'],
-                                                        num_workers=config['data_loader']['n_workers'],
                                                         batch_size=config['exp_args']['batch_size'],
-                                                        board_transform=BoardArray.to_low_level,
-                                                        move_transform=encode_move,
-                                                        max_games=-1)
+                                                        num_workers=config['data_loader']['n_workers'],
+                                                        board_transform='matrix', move_transform=encode_move)
+
+    wandb_name = config['setup_args']['wandb_name'] \
+        if config['setup_args']['wandb_name'] is not None else f'run_{time.now().strftime("%Y-%m-%d_%H-%M-%S")}'
+
+    if config['setup_args']['wandblog'] is True:
+        wandb.init(
+            project="scacchi-polito-bot-ai",
+            config=config,
+            name=wandb_name
+        )
 
     if config['exp_args']['type_exp'] == 'train':
-        train(model, train_data, val_data, config)
-        test(model, test_data, config)
+        train(model, train_data, val_data, config, logger)
+        test(model, test_data, config, logger)
     elif config['exp_args']['type_exp'] == 'test':
         ckpt = torch.load(config['setup_args']['resume'])
         model.load_state_dict(ckpt['model_state_dict'], strict=True)
-        test(model)
+        test(model, logger)
 
 
 if __name__ == '__main__':

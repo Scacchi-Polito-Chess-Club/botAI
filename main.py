@@ -4,6 +4,7 @@ import torch
 import yaml
 
 import games_from_dataset as gd
+import utils
 from actionspace import encode_move
 
 from experiment_launcher import train, test
@@ -11,12 +12,13 @@ from logs.local_logging import make_logger
 from models.autoencoder import *
 import wandb
 
+
 def main():
     with open("setup/config.yaml", "r") as f:
         config = yaml.safe_load(f)
     # if you want to change some parameters, you can edit dictionary config (ex. config[par1][par1.1]=val)
 
-    utils.set_random_seed(config['seed'])
+    utils.set_random_seed(config['exp_args']['seed'])
 
     logger = make_logger(config['setup_args']['logger'])
     # logger.info(f"{str(logger)} is available")

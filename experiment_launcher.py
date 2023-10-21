@@ -12,7 +12,7 @@ import time
 
 
 @torch.no_grad()
-def test(model:nn.Module, test_data: data.DataLoader, config, logger):
+def test(model: nn.Module, test_data: data.DataLoader, config, logger):
     device = config['setup_args']['device']
     loss_func = get_loss_func(config['exp_args']['loss'])
     corrects = 0
@@ -34,7 +34,7 @@ def test(model:nn.Module, test_data: data.DataLoader, config, logger):
     return accuracy, avg_loss
 
 
-def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoader, config):
+def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoader, config, logger):
     # check if there is a model to be resumed
     if config['setup_args']['resume']:
         try:
@@ -66,6 +66,9 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
         sched = get_scheduler(optim, type=config['exp_args']['scheduler'])
         loss_func = get_loss_func(config['exp_args']['loss'])
         init_epoch = 0
+
+    if logger is not None:
+        logger.info('\nStart Training')
 
     for epoch in range(init_epoch, config['exp_args']['epoch']):
         t = time.time()
@@ -99,7 +102,7 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
             wandb.log({"Epoch": epoch, "Train avg loss":  avg_loss,
                        "Train accuracy": accuracy, "Time": t})
         if epoch % config['exp_args']['eval_step'] == 0:
-            eval_stats, _ = test(model, val_data, config)
+            eval_stats, _ = test(model, val_data, config, logger)
             print(f"Eval accuracy {eval_stats}")
             # checkpoint and saving of model parameters, optimizer, scheduler
             f = open(pt_file, "w")

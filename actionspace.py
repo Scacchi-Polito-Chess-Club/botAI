@@ -1,9 +1,7 @@
 import chess
-from itertools import product
-from itertools import chain
-import json
-import logging
 import numpy as np
+
+import logging
 
 BOARD_SIZE = 64
 BOARD_ROWS = 8
@@ -137,7 +135,7 @@ def encode_move(move: chess.Move | str, output_in_numpy: bool = True) -> list[in
         try:
             index_move += TO_REDUCED_PROMOTION_MAP[move.promotion] * (PROMOTION_MOVES_PER_SIDE * 2)  # Offset of the promotion piece
         except KeyError:
-            logging.warning(f"The move {move.uci()} promote to a piece outside of {PIECE_PROMOTION_SYMBOLS}. It will be treated as a queen promotion!")
+            logging.debug(f"The move {move.uci()} promote to a piece outside of {PIECE_PROMOTION_SYMBOLS}. It will be treated as a queen promotion!")
             index_move += TO_REDUCED_PROMOTION_MAP[5] * (PROMOTION_MOVES_PER_SIDE * 2)  # Offset of the promotion piece
         index_move += BOARD_MOVES  # Offset of all moves that are not promotions
     action[index_move] = 1

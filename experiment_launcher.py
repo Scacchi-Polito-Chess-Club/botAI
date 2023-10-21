@@ -4,16 +4,20 @@ import tqdm
 
 import games_from_dataset as gd
 import torch.optim
-import torch.nn as nn
 import torch.utils.data as data
+import tqdm
 from utils.utils_model import *
+import wandb
+import time
 
 
 @torch.no_grad()
-def test(model, test_data, config):
+def test(model:nn.Module, test_data: data.DataLoader, config, logger):
     device = config['setup_args']['device']
+    loss_func = get_loss_func(config['exp_args']['loss'])
     corrects = 0
     totals = 0
+    tot_loss = 0.0
     for (b1, b2), move_gt in test_data:
         b1, b2, move_gt = b1.to(device).float(), b2.to(device).float(), move_gt.to(device).float()
         move = model(b1, b2)
@@ -21,8 +25,13 @@ def test(model, test_data, config):
         gt = torch.argmax(move_gt, axis=-1)
         corrects += torch.sum(predicted_move == gt)
         totals += predicted_move.shape[0]
-    accuracy = (corrects/totals).detach().cpu().numpy()
-    return accuracy
+        tot_loss += loss_func(move, move_gt).item()
+    accuracy = (corrects/totals).detach().cpu().numpy()*100
+    avg_loss = tot_loss / len(test_data)
+    if logger is not None:
+        logger.info(f"\nEval accuracy {accuracy:.2f}%, Eval avg loss {avg_loss:.5f}")
+        wandb.log({"Eval accuracy": accuracy, "Eval avg loss": avg_loss})
+    return accuracy, avg_loss
 
 
 def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoader, config):
@@ -59,7 +68,10 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
         init_epoch = 0
 
     for epoch in range(init_epoch, config['exp_args']['epoch']):
+        t = time.time()
         tot_loss = 0.0
+        corrects = 0
+        totals = 0
         loss = torch.tensor(0.0)
         # TODO: handling repetition of games if data is resumed by checkpoint
         data_iterator = tqdm.tqdm(train_data)
@@ -73,11 +85,21 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
             loss.backward()
             optim.step()
             tot_loss += loss.item()
+            predicted_move = torch.argmax(action, axis=-1)
+            gt = torch.argmax(action_gt, axis=-1)
+            corrects += torch.sum(predicted_move == gt)
+            totals += predicted_move.shape[0]
         sched.step()
-        print(f"Epoch {epoch}: avg loss  {tot_loss / len(train_data)}")
-
+        t = time.time() - t
+        accuracy = (corrects / totals).detach().cpu().numpy()*100
+        avg_loss = tot_loss / len(train_data)
+        if logger is not None:
+            logger.info(f"\nEpoch {epoch}: Train avg loss  {loss:.5f}, "
+                        f"Train accuracy {accuracy:.2f}%, Time required: {t:.2f}s")
+            wandb.log({"Epoch": epoch, "Train avg loss":  avg_loss,
+                       "Train accuracy": accuracy, "Time": t})
         if epoch % config['exp_args']['eval_step'] == 0:
-            eval_stats = test(model, val_data, config)
+            eval_stats, _ = test(model, val_data, config)
             print(f"Eval accuracy {eval_stats}")
             # checkpoint and saving of model parameters, optimizer, scheduler
             f = open(pt_file, "w")

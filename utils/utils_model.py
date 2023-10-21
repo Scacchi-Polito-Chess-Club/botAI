@@ -1,6 +1,7 @@
-from models.autoencoder import AutoEncoder
-import torch.optim
 import torch.nn as nn
+import torch.optim
+
+from models.autoencoder import AutoEncoder
 
 
 def get_autoencoder(encoder: str, decoder: str, latent_dim: int) -> nn.Module:

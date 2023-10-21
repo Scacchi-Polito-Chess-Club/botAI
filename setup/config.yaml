@@ -6,11 +6,13 @@ data_loader:
   n_workers: 0
 
 setup_args:
-  resume: false   # if true, set path in resume_path
-  resume_path: "./models/..."   # resume_path .pt file in models/ folder
+  wandblog : True
+  wandb_name: null
+  resume: false   # checkpoint path (if true, set path in resume_path)
+  resume_path: null
   device: "cpu"   # if gpu, set a value in n_gpu
   n_gpu: null
-  logger: null
+  logger: ['logfile', 'stdout']
 
 exp_args:
   type_exp: "train"   #type of experiment (train, test)
@@ -26,6 +28,7 @@ exp_args:
 
 
 encoder:
+  in_channel_dim: 1 # channels of the input
   input_dim: 67    # input dimension of encoder
   latent_dim: 32   # dimension of encoded features
   type: "conv"   # (linear, conv)

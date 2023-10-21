@@ -1,11 +1,12 @@
 import os.path
 from unittest import TestCase
+
 import chess
 import numpy as np
 
+import boardarray
 from constants import PROJECT_PATH
 from games_from_dataset import file_parser, game_states
-import boardarray
 
 
 class TestBoardArray(TestCase):

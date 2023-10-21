@@ -29,18 +29,39 @@ def test(model:nn.Module, test_data: data.DataLoader, config, logger):
     return accuracy, avg_loss
 
 
-def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoader, config, logger):
-    device = config['setup_args']['device']
-    model = model.to(device)
-    optim = get_optimizer(model, config['exp_args']['optimizer'].lower(), config['exp_args']['lr'])
-    sched = get_scheduler(optim, type=config['exp_args']['scheduler'])
-    loss_func = get_loss_func(config['exp_args']['loss'])
-
+def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoader, config):
+    # check if there is a model to be resumed
     if config['setup_args']['resume']:
-        raise NotImplementedError()
-    if logger is not None:
-        logger.info('\nStart Training')
-    init_epoch = 0
+        try:
+            pt_file = config['setup_args']['resume_path']
+            checkpoint = torch.load(pt_file)
+        except FileNotFoundError as e1:
+            print(f"File path incorrect or null: {config['setup_args']['resume_path']}")
+            raise e1
+        except TypeError as e2:
+            print(f"File path is not a string: {type(config['setup_args']['resume_path'])}")
+            raise e2
+        print('Resume Training')
+        device = config['setup_args']['device']
+        model = model.to(device)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optim = get_optimizer(model, config['exp_args']['optimizer'].lower(), config['exp_args']['lr'])
+        optim.load_state_dict(checkpoint['optimizer_state_dict'])
+        sched = get_scheduler(optim, type=config['exp_args']['scheduler'])
+        sched.load_state_dict(checkpoint['scheduler_state_dict'])
+        loss_func = get_loss_func(config['exp_args']['loss'])
+        init_epoch = checkpoint['epoch'] + 1
+
+    else:
+        print('Start Training')
+        pt_file = datetime.datetime.now().strftime("./models/%Y-%m-%d-%H-%M") + ".pt"
+        device = config['setup_args']['device']
+        model = model.to(device)
+        optim = get_optimizer(model, config['exp_args']['optimizer'].lower(), config['exp_args']['lr'])
+        sched = get_scheduler(optim, type=config['exp_args']['scheduler'])
+        loss_func = get_loss_func(config['exp_args']['loss'])
+        init_epoch = 0
+
     for epoch in range(init_epoch, config['exp_args']['epoch']):
         t = time.time()
         tot_loss = 0.0
@@ -72,7 +93,17 @@ def train(model: nn.Module, train_data: data.DataLoader, val_data: data.DataLoad
             wandb.log({"Epoch": epoch, "Train avg loss":  avg_loss,
                        "Train accuracy": accuracy, "Time": t})
         if epoch % config['exp_args']['eval_step'] == 0:
-            test(model, val_data, config, logger)
+            eval_stats, _ = test(model, val_data, config)
+            print(f"Eval accuracy {eval_stats}")
+            # checkpoint and saving of model parameters, optimizer, scheduler
+            f = open(pt_file, "w")
+            torch.save({'epoch': epoch,
+                        'model_state_dict': model.state_dict(),
+                        'optimizer_state_dict': optim.state_dict(),
+                        'scheduler_state_dict': sched.state_dict(),
+                        'loss': tot_loss,
+                        }, pt_file)
+            f.close()
 
     return model
 
